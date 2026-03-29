@@ -1,0 +1,328 @@
+/* Advantage Section Styles */
+.section-advantage {
+    position: relative;
+    overflow: hidden;
+    background: #000;
+    /* Fallback */
+}
+
+.section-advantage .section-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 1;
+    filter: brightness(0.5);
+}
+
+.advantage-content {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 40px 30px 15px;
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    gap: 15px;
+}
+
+/* Advantage Top Half */
+.advantage-top {
+    text-align: center;
+    margin-bottom: 5px;
+    flex: 0 1 auto;
+}
+
+.advantage-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2em;
+    color: #FFFFFF;
+    margin-bottom: 5px;
+    text-shadow: 2px 4px 15px rgba(0, 0, 0, 0.6);
+    font-weight: 800;
+}
+
+.advantage-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.95em;
+    color: #FFFFFF;
+    margin-bottom: 10px;
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+/* Comparison Row */
+.comparison-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+.comparison-box {
+    background: linear-gradient(135deg, rgba(30, 30, 35, 0.95), rgba(20, 20, 25, 0.9));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 30px 35px;
+    border: 2px solid rgba(255, 215, 0, 0.2);
+    min-width: 280px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        border-color 0.4s ease,
+        box-shadow 0.4s ease,
+        background 0.4s ease;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+}
+
+/* Elegant gradient overlay on hover */
+.comparison-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.08));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    border-radius: 20px;
+    pointer-events: none;
+}
+
+.comparison-box:hover::before {
+    opacity: 1;
+}
+
+.comparison-box:hover {
+    transform: translate3d(0, -10px, 0) scale(1.02);
+    border-color: rgba(255, 215, 0, 0.6);
+    box-shadow: 0 20px 50px rgba(255, 215, 0, 0.25),
+        0 10px 25px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, rgba(40, 40, 45, 0.98), rgba(30, 30, 35, 0.95));
+}
+
+.comparison-box.before {
+    border-color: rgba(255, 107, 107, 0.4);
+}
+
+.comparison-box.before:hover {
+    border-color: rgba(255, 107, 107, 0.7);
+    box-shadow: 0 20px 50px rgba(255, 107, 107, 0.25),
+        0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.comparison-box.after {
+    border-color: rgba(78, 237, 154, 0.4);
+    background: linear-gradient(135deg, rgba(20, 50, 35, 0.95), rgba(15, 40, 30, 0.9));
+}
+
+.comparison-box.after:hover {
+    border-color: rgba(78, 237, 154, 0.7);
+    box-shadow: 0 20px 50px rgba(78, 237, 154, 0.25),
+        0 10px 25px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, rgba(25, 60, 40, 0.98), rgba(20, 50, 35, 0.95));
+}
+
+.comparison-box h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4em;
+    margin-bottom: 18px;
+    color: #FFD700;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+    position: relative;
+    z-index: 1;
+}
+
+.comparison-box ul {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+    position: relative;
+    z-index: 1;
+}
+
+.comparison-box li {
+    font-size: 1em;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 12px;
+    line-height: 1.6;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.comparison-box:hover li {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.comparison-box li:hover {
+    transform: translateX(5px);
+}
+
+.vs-badge {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5em;
+    font-weight: 900;
+    color: #FFC700;
+    background: linear-gradient(135deg, rgba(30, 30, 35, 0.95), rgba(20, 20, 25, 0.9));
+    backdrop-filter: blur(20px);
+    padding: 18px 22px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 199, 0, 0.6);
+    text-shadow: 0 0 20px rgba(255, 199, 0, 0.6);
+    box-shadow: 0 10px 30px rgba(255, 199, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.vs-badge:hover {
+    transform: rotate(15deg) scale(1.1);
+    box-shadow: 0 15px 40px rgba(255, 199, 0, 0.5);
+}
+
+/* Bottom Half */
+.advantage-bottom {
+    flex: 0 1 auto;
+    width: 100%;
+}
+
+.solution-cards-compact {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.solution-card-compact {
+    background: linear-gradient(135deg, rgba(30, 30, 35, 0.95), rgba(20, 20, 25, 0.9));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 35px 30px;
+    text-align: center;
+    border: 2px solid rgba(255, 215, 0, 0.2);
+    flex: 1;
+    min-width: 220px;
+    max-width: 320px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        border-color 0.4s ease,
+        box-shadow 0.4s ease,
+        background 0.4s ease;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+}
+
+/* Elegant gradient overlay on hover */
+.solution-card-compact::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.08));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    border-radius: 20px;
+    pointer-events: none;
+}
+
+.solution-card-compact:hover::before {
+    opacity: 1;
+}
+
+.solution-card-compact:hover {
+    transform: translate3d(0, -15px, 0) scale(1.03);
+    border-color: rgba(255, 215, 0, 0.6);
+    box-shadow: 0 20px 50px rgba(255, 215, 0, 0.25),
+        0 10px 25px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, rgba(40, 40, 45, 0.98), rgba(30, 30, 35, 0.95));
+}
+
+/* Icon styling with glow effect */
+.solution-icon-compact {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 20px;
+    color: #FFD700;
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4));
+    transition: transform 0.4s ease, filter 0.4s ease;
+}
+
+.solution-card-compact:hover .solution-icon-compact {
+    transform: scale(1.15) rotate(5deg);
+    filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.7));
+}
+
+.solution-icon-compact svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Title styling */
+.solution-card-compact h4 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.3em;
+    color: #FFD700;
+    margin-bottom: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.solution-card-compact:hover h4 {
+    color: #FFF;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+}
+
+/* Description text */
+.solution-card-compact p {
+    font-size: 0.95em;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    transition: color 0.3s ease;
+}
+
+.solution-card-compact:hover p {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .advantage-content {
+        justify-content: center;
+        gap: 40px;
+        padding: 40px 20px;
+        height: auto;
+        /* Allow growth on narrow screens */
+        min-height: 100vh;
+    }
+
+    .comparison-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .vs-badge {
+        margin: 10px 0;
+    }
+
+    .solution-cards-compact {
+        flex-direction: column;
+    }
+}

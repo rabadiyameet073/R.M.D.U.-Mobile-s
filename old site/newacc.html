@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Your Account</title>
+    <link rel="stylesheet" href="frontend/css/style.css">
+    <link rel="stylesheet" href="frontend/css/premium-backgrounds.css">
+</head>
+
+<body class="form-page-body">
+    <!-- Premium Animated Background -->
+    <div class="premium-bg-container newacc-premium-bg">
+        <div class="glass-overlay"></div>
+        <div class="particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <h2 class="form-title">Create Your Account</h2>
+        <p class="form-subtitle">Join us today! It's quick and easy.</p>
+
+        <form method="post" id="registerForm">
+            <div class="form-group-row">
+                <div class="form-group">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" name="firstName" class="form-input" placeholder="e.g., John" required>
+                </div>
+                <div class="form-group">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" name="lastName" class="form-input" placeholder="e.g., Doe" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" name="email" class="form-input" placeholder="you@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="mobile" class="form-label">Mobile Number</label>
+                <input type="tel" name="mobile" class="form-input" placeholder="e.g., 9876543210" pattern="[0-9]{10}"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="password" class="form-input" minlength="8"
+                    placeholder="Minimum 8 characters" required>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" name="confirmPassword" class="form-input" placeholder="Re-enter your password"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label for="dob" class="form-label">Date of Birth</label>
+                <input type="date" name="dob" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Gender</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="gender" value="Male" required> Male</label>
+                    <label><input type="radio" name="gender" value="Female"> Female</label>
+                    <label><input type="radio" name="gender" value="Other"> Other</label>
+                </div>
+            </div>
+
+            <div class="form-group-checkbox">
+                <input type="checkbox" name="terms" required>
+                <label>I agree to the <a href="#">Terms and Conditions</a></label>
+            </div>
+
+            <button type="submit" class="submit-button">Create Account</button>
+        </form>
+    </div>
+
+    <script src="frontend/js/toast-notifications.js"></script>
+    <script src="frontend/js/complete-functionality.js"></script>
+    <script src="frontend/js/register-page.js"></script>
+    <script>
+        // Enhance register page
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('registerForm');
+            if (form) {
+                // Password match validation
+                const password = form.querySelector('[name="password"]');
+                const confirmPassword = form.querySelector('[name="confirmPassword"]');
+                
+                if (password && confirmPassword) {
+                    confirmPassword.addEventListener('blur', function() {
+                        if (this.value !== password.value) {
+                            this.setCustomValidity('Passwords do not match');
+                            if (window.showToast) {
+                                window.showToast('Passwords do not match', 'error');
+                            }
+                        } else {
+                            this.setCustomValidity('');
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

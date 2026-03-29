@@ -1,0 +1,873 @@
+/* ==========================================
+   BUDGETKILLER - EMERALD/GREEN THEME
+   Premium design with green gradients
+   ========================================== */
+
+/* Navigation Bar - Emerald Theme */
+.heading {
+    background: linear-gradient(135deg, rgba(6, 78, 59, 0.8) 0%, rgba(5, 150, 105, 0.7) 100%) !important;
+    border-bottom: 1px solid rgba(16, 185, 129, 0.4) !important;
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.15) !important;
+}
+
+.heading:hover {
+    background: linear-gradient(135deg, rgba(6, 78, 59, 0.9) 0%, rgba(5, 150, 105, 0.8) 100%) !important;
+    border-bottom-color: rgba(16, 185, 129, 0.6) !important;
+}
+
+.nav-left {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.4));
+    transition: filter 0.3s ease;
+}
+
+.nav-left:hover {
+    filter: drop-shadow(0 0 16px rgba(16, 185, 129, 0.6));
+}
+
+/* Search Container - Emerald Theme */
+.search-input {
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+.search-button {
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+.search-button:hover {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.6) !important;
+}
+
+.search-container.active .search-button {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.6) !important;
+}
+
+/* Cart Icon - Emerald Theme */
+.cart {
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+.cart:hover {
+    background: rgba(16, 185, 129, 0.2) !important;
+    border-color: rgba(16, 185, 129, 0.5) !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4) !important;
+}
+
+.cart:hover .cart-icon {
+    color: #34d399 !important;
+}
+
+/* Sidebar - Emerald Theme */
+.sidebar {
+    background: rgba(6, 78, 59, 0.7) !important;
+    border-right: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.5) !important;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(16, 185, 129, 0.7) !important;
+}
+
+.icon {
+    border: 1px solid rgba(16, 185, 129, 0.2) !important;
+}
+
+.sidebar button.icon:hover,
+.sidebar button.icon:focus {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.6),
+        0 4px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+.sidebar button.icon.active {
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%) !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.6) !important;
+}
+
+/* Main Title - Emerald Theme */
+.main-title {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    filter: drop-shadow(0 4px 16px rgba(16, 185, 129, 0.3));
+}
+
+/* Mobile Cards - Emerald Theme */
+.mobile-card {
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+.mobile-card::before {
+    background: linear-gradient(90deg,
+            #10b981 0%,
+            #059669 50%,
+            #34d399 100%) !important;
+}
+
+.mobile-card:hover {
+    border-color: rgba(16, 185, 129, 0.6) !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4),
+        0 8px 24px rgba(16, 185, 129, 0.4),
+        0 0 40px rgba(16, 185, 129, 0.3) !important;
+}
+
+/* Price Badge - Emerald Theme */
+.mobile-price {
+    background: linear-gradient(135deg, #6ee7b7 0%, #10b981 100%) !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4) !important;
+}
+
+/* Buttons - Emerald Theme */
+.info-btn {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.15)) !important;
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(16, 185, 129, 0.6) !important;
+    color: #10b981 !important;
+    font-weight: 600;
+    box-shadow:
+        0 4px 16px rgba(16, 185, 129, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    position: relative;
+    overflow: hidden !important;
+}
+
+.info-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.info-btn:hover::before {
+    left: 100%;
+}
+
+.info-btn:hover {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(5, 150, 105, 0.25)) !important;
+    border-color: rgba(16, 185, 129, 0.9) !important;
+    color: #34d399 !important;
+    transform: translateY(-2px);
+    box-shadow:
+        0 8px 24px rgba(16, 185, 129, 0.35),
+        0 0 32px rgba(16, 185, 129, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.add-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    transition: left 0.5s;
+}
+
+.add-btn:hover::before {
+    left: 100%;
+}
+
+.add-btn:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.7),
+        0 4px 16px rgba(16, 185, 129, 0.5) !important;
+    transform: translateY(-2px) scale(1.02);
+}
+
+/* Image source links in mobile cards */
+.mobile-card a {
+    display: block;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.mobile-card a:hover {
+    transform: scale(1.02);
+}
+
+.mobile-card a img {
+    cursor: pointer;
+}
+/* Gaming Guru Theme */
+:root {
+    --gaming-primary: #ff4655;
+    --gaming-secondary: #ff8800;
+    --gaming-accent: #00ff88;
+}
+
+body.gaming-page {
+    background: radial-gradient(circle at 20% 50%, rgba(255, 70, 85, 0.1), transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(255, 136, 0, 0.1), transparent 50%);
+}
+
+.gaming-page .heading {
+    background: linear-gradient(135deg, var(--gaming-primary), var(--gaming-secondary));
+}
+
+.gaming-page .nav-left {
+    font-size: 2em;
+    font-weight: 800;
+    background: linear-gradient(45deg, #ff4655, #ff8800);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(255, 70, 85, 0.5);
+}
+
+.gaming-page .main-title {
+    text-align: center;
+    font-size: 3em;
+    background: linear-gradient(45deg, var(--gaming-primary), var(--gaming-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 30px 0;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+/* Camera Champion Theme */
+:root {
+    --camera-primary: #9333ea;
+    --camera-secondary: #a855f7;
+    --camera-accent: #f59e0b;
+}
+
+body.camera-page {
+    background: radial-gradient(circle at 20% 50%, rgba(147, 51, 234, 0.1), transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(245, 158, 11, 0.1), transparent 50%);
+}
+
+.camera-page .heading {
+    background: linear-gradient(135deg, var(--camera-primary), var(--camera-secondary));
+}
+
+.camera-page .nav-left {
+    font-size: 2em;
+    font-weight: 800;
+    background: linear-gradient(45deg, #9333ea, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(147, 51, 234, 0.5);
+}
+
+.camera-page .main-title {
+    text-align: center;
+    font-size: 3em;
+    background: linear-gradient(45deg, var(--camera-primary), var(--camera-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 30px 0;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+/* Battery Beast Theme */
+:root {
+    --battery-primary: #10b981;
+    --battery-secondary: #14b8a6;
+    --battery-accent: #22c55e;
+}
+
+body.battery-page {
+    background: radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.1), transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(20, 184, 166, 0.1), transparent 50%);
+}
+
+.battery-page .heading {
+    background: linear-gradient(135deg, var(--battery-primary), var(--battery-secondary));
+}
+
+.battery-page .nav-left {
+    font-size: 2em;
+    font-weight: 800;
+    background: linear-gradient(45deg, #10b981, #22c55e);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+}
+
+.battery-page .main-title {
+    text-align: center;
+    font-size: 3em;
+    background: linear-gradient(45deg, var(--battery-primary), var(--battery-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 30px 0;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+/* GOAT Legends Theme */
+:root {
+    --goat-primary: #d97706;
+    --goat-secondary: #f59e0b;
+    --goat-accent: #fbbf24;
+}
+
+body.goat-page {
+    background: radial-gradient(circle at 20% 50%, rgba(217, 119, 6, 0.1), transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(251, 191, 36, 0.1), transparent 50%);
+}
+
+.goat-page .heading {
+    background: linear-gradient(135deg, var(--goat-primary), var(--goat-secondary));
+}
+
+.goat-page .nav-left {
+    font-size: 2em;
+    font-weight: 800;
+    background: linear-gradient(45deg, #d97706, #fbbf24);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(217, 119, 6, 0.5);
+}
+
+.goat-page .main-title {
+    text-align: center;
+    font-size: 3em;
+    background: linear-gradient(45deg, var(--goat-primary), var(--goat-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 30px 0;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.goat-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #d97706, #fbbf24);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-left: 8px;
+}
+/* ==========================================
+   BATTERYBOSS - BLUE/CYAN THEME
+   Premium design with electric blue gradients
+   ========================================== */
+
+/* Navigation Bar - Blue/Cyan Theme */
+.heading {
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.8) 0%, rgba(59, 130, 246, 0.7) 100%) !important;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.4) !important;
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.15) !important;
+}
+
+.heading:hover {
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.9) 0%, rgba(59, 130, 246, 0.8) 100%) !important;
+    border-bottom-color: rgba(59, 130, 246, 0.6) !important;
+}
+
+.nav-left {
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.4));
+    transition: filter 0.3s ease;
+}
+
+.nav-left:hover {
+    filter: drop-shadow(0 0 16px rgba(59, 130, 246, 0.6));
+}
+
+/* Search Container - Blue/Cyan Theme */
+.search-input {
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+.search-button {
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+.search-button:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%) !important;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6) !important;
+}
+
+.search-container.active .search-button {
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%) !important;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6) !important;
+}
+
+/* Cart Icon - Blue/Cyan Theme */
+.cart {
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+.cart:hover {
+    background: rgba(59, 130, 246, 0.2) !important;
+    border-color: rgba(59, 130, 246, 0.5) !important;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4) !important;
+}
+
+.cart:hover .cart-icon {
+    color: #60a5fa !important;
+}
+
+/* Sidebar - Blue/Cyan Theme */
+.sidebar {
+    background: rgba(30, 58, 138, 0.7) !important;
+    border-right: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.5) !important;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 130, 246, 0.7) !important;
+}
+
+.icon {
+    border: 1px solid rgba(59, 130, 246, 0.2) !important;
+}
+
+.sidebar button.icon:hover,
+.sidebar button.icon:focus {
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%) !important;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6),
+        0 4px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+.sidebar button.icon.active {
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6) !important;
+}
+
+/* Main Title - Blue/Cyan Theme */
+.main-title {
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    filter: drop-shadow(0 4px 16px rgba(59, 130, 246, 0.3));
+}
+
+/* Mobile Cards - Blue/Cyan Theme */
+.mobile-card {
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+.mobile-card::before {
+    background: linear-gradient(90deg,
+            #3b82f6 0%,
+            #06b6d4 50%,
+            #60a5fa 100%) !important;
+}
+
+.mobile-card:hover {
+    border-color: rgba(59, 130, 246, 0.6) !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4),
+        0 8px 24px rgba(59, 130, 246, 0.4),
+        0 0 40px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Price Badge - Blue/Cyan Theme */
+.mobile-price {
+    background: linear-gradient(135deg, #bfdbfe 0%, #3b82f6 100%) !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* Buttons - Blue/Cyan Theme */
+.info-btn {
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+.info-btn:hover {
+    background: rgba(59, 130, 246, 0.2) !important;
+    border-color: rgba(59, 130, 246, 0.5) !important;
+    box-shadow: 0 0 16px rgba(59, 130, 246, 0.4) !important;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%) !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.add-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    transition: left 0.5s;
+}
+
+.add-btn:hover::before {
+    left: 100%;
+}
+
+.add-btn:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%) !important;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.7),
+        0 4px 16px rgba(59, 130, 246, 0.5) !important;
+    transform: translateY(-2px) scale(1.02);
+}
+/* ==========================================
+   CAMERACHAMP - PURPLE/VIOLET THEME
+   Premium design with purple gradients
+   ========================================== */
+
+/* Navigation Bar - Purple Theme */
+.heading {
+    background: linear-gradient(135deg, rgba(76, 29, 149, 0.8) 0%, rgba(147, 51, 234, 0.7) 100%) !important;
+    border-bottom: 1px solid rgba(168, 85, 247, 0.4) !important;
+    box-shadow: 0 8px 32px rgba(168, 85, 247, 0.15) !important;
+}
+
+.heading:hover {
+    background: linear-gradient(135deg, rgba(76, 29, 149, 0.9) 0%, rgba(147, 51, 234, 0.8) 100%) !important;
+    border-bottom-color: rgba(168, 85, 247, 0.6) !important;
+}
+
+.nav-left {
+    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.4));
+    transition: filter 0.3s ease;
+}
+
+.nav-left:hover {
+    filter: drop-shadow(0 0 16px rgba(168, 85, 247, 0.6));
+}
+
+/* Search Container - Purple Theme */
+.search-input {
+    border: 1px solid rgba(168, 85, 247, 0.3) !important;
+}
+
+.search-button {
+    border: 1px solid rgba(168, 85, 247, 0.3) !important;
+}
+
+.search-button:hover {
+    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%) !important;
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.6) !important;
+}
+
+.search-container.active .search-button {
+    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%) !important;
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.6) !important;
+}
+
+/* Cart Icon - Purple Theme */
+.cart {
+    border: 1px solid rgba(168, 85, 247, 0.3) !important;
+}
+
+.cart:hover {
+    background: rgba(168, 85, 247, 0.2) !important;
+    border-color: rgba(168, 85, 247, 0.5) !important;
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4) !important;
+}
+
+.cart:hover .cart-icon {
+    color: #c084fc !important;
+}
+
+/* Sidebar - Purple Theme */
+.sidebar {
+    background: rgba(76, 29, 149, 0.7) !important;
+    border-right: 1px solid rgba(168, 85, 247, 0.3) !important;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(168, 85, 247, 0.5) !important;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(168, 85, 247, 0.7) !important;
+}
+
+.icon {
+    border: 1px solid rgba(168, 85, 247, 0.2) !important;
+}
+
+.sidebar button.icon:hover,
+.sidebar button.icon:focus {
+    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%) !important;
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.6),
+        0 4px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+.sidebar button.icon.active {
+    background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%) !important;
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.6) !important;
+}
+
+/* Main Title - Purple Theme */
+.main-title {
+    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    filter: drop-shadow(0 4px 16px rgba(168, 85, 247, 0.3));
+}
+
+/* Mobile Cards - Purple Theme */
+.mobile-card {
+    border: 1px solid rgba(168, 85, 247, 0.3) !important;
+}
+
+.mobile-card::before {
+    background: linear-gradient(90deg,
+            #a855f7 0%,
+            #9333ea 50%,
+            #c084fc 100%) !important;
+}
+
+.mobile-card:hover {
+    border-color: rgba(168, 85, 247, 0.6) !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4),
+        0 8px 24px rgba(168, 85, 247, 0.4),
+        0 0 40px rgba(168, 85, 247, 0.3) !important;
+}
+
+/* Price Badge - Purple Theme */
+.mobile-price {
+    background: linear-gradient(135deg, #e9d5ff 0%, #a855f7 100%) !important;
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4) !important;
+}
+
+/* Buttons - Purple Theme */
+.info-btn {
+    border: 1px solid rgba(168, 85, 247, 0.3) !important;
+}
+
+.info-btn:hover {
+    background: rgba(168, 85, 247, 0.2) !important;
+    border-color: rgba(168, 85, 247, 0.5) !important;
+    box-shadow: 0 0 16px rgba(168, 85, 247, 0.4) !important;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%) !important;
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.add-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    transition: left 0.5s;
+}
+
+.add-btn:hover::before {
+    left: 100%;
+}
+
+.add-btn:hover {
+    background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%) !important;
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.7),
+        0 4px 16px rgba(168, 85, 247, 0.5) !important;
+    transform: translateY(-2px) scale(1.02);
+}
+/* ==========================================
+   G.O.A.T - GOLD/AMBER THEME
+   Premium luxury design with gold gradients
+   ========================================== */
+
+/* Navigation Bar - Gold/Amber Theme */
+.heading {
+    background: linear-gradient(135deg, rgba(120, 53, 15, 0.8) 0%, rgba(217, 119, 6, 0.7) 100%) !important;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.4) !important;
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.15) !important;
+}
+
+.heading:hover {
+    background: linear-gradient(135deg, rgba(120, 53, 15, 0.9) 0%, rgba(217, 119, 6, 0.8) 100%) !important;
+    border-bottom-color: rgba(245, 158, 11, 0.6) !important;
+}
+
+.nav-left {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.4));
+    transition: filter 0.3s ease;
+}
+
+.nav-left:hover {
+    filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.6));
+}
+
+/* Search Container - Gold/Amber Theme */
+.search-input {
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.search-button {
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.search-button:hover {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.6) !important;
+}
+
+.search-container.active .search-button {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.6) !important;
+}
+
+/* Cart Icon - Gold/Amber Theme */
+.cart {
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.cart:hover {
+    background: rgba(245, 158, 11, 0.2) !important;
+    border-color: rgba(245, 158, 11, 0.5) !important;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.4) !important;
+}
+
+.cart:hover .cart-icon {
+    color: #fbbf24 !important;
+}
+
+/* Sidebar - Gold/Amber Theme */
+.sidebar {
+    background: rgba(120, 53, 15, 0.7) !important;
+    border-right: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(245, 158, 11, 0.5) !important;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(245, 158, 11, 0.7) !important;
+}
+
+.icon {
+    border: 1px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+.sidebar button.icon:hover,
+.sidebar button.icon:focus {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.6),
+        0 4px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+.sidebar button.icon.active {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.6) !important;
+}
+
+/* Main Title - Gold/Amber Theme */
+.main-title {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    filter: drop-shadow(0 4px 16px rgba(245, 158, 11, 0.3));
+}
+
+/* Mobile Cards - Gold/Amber Theme */
+.mobile-card {
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.mobile-card::before {
+    background: linear-gradient(90deg,
+            #f59e0b 0%,
+            #d97706 50%,
+            #fbbf24 100%) !important;
+}
+
+.mobile-card:hover {
+    border-color: rgba(245, 158, 11, 0.6) !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4),
+        0 8px 24px rgba(245, 158, 11, 0.4),
+        0 0 40px rgba(245, 158, 11, 0.3) !important;
+}
+
+/* Price Badge - Gold/Amber Theme */
+.mobile-price {
+    background: linear-gradient(135deg, #fde68a 0%, #f59e0b 100%) !important;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4) !important;
+}
+
+/* Buttons - Gold/Amber Theme */
+.info-btn {
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.info-btn:hover {
+    background: rgba(245, 158, 11, 0.2) !important;
+    border-color: rgba(245, 158, 11, 0.5) !important;
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.4) !important;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.add-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    transition: left 0.5s;
+}
+
+.add-btn:hover::before {
+    left: 100%;
+}
+
+.add-btn:hover {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.7),
+        0 4px 16px rgba(245, 158, 11, 0.5) !important;
+    transform: translateY(-2px) scale(1.02);
+}

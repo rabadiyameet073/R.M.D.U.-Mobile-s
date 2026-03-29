@@ -1,0 +1,467 @@
+/**
+ * ============================================
+ * RMDU Mobiles - Price Tier System
+ * Strategic Inventory Visual Classification
+ * December 2025
+ * ============================================
+ */
+
+/* ============================================
+   BASE PRICE TIER VARIABLES
+   ============================================ */
+
+:root {
+    /* 10K Tier - Entry Level (₹9k-12k) */
+    --tier-10k-primary: #4ade80;
+    --tier-10k-secondary: #22c55e;
+    --tier-10k-gradient: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+    --tier-10k-glow: rgba(74, 222, 128, 0.3);
+
+    /* 15K Tier - Sweet Spot (₹12k-17k) */
+    --tier-15k-primary: #60a5fa;
+    --tier-15k-secondary: #3b82f6;
+    --tier-15k-gradient: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    --tier-15k-glow: rgba(96, 165, 250, 0.3);
+
+    /* 20K Tier - Premium Budget (₹17k-25k) */
+    --tier-20k-primary: #a78bfa;
+    --tier-20k-secondary: #8b5cf6;
+    --tier-20k-gradient: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+    --tier-20k-glow: rgba(167, 139, 250, 0.3);
+
+    /* 30K Tier - Mid Premium (₹25k-35k) */
+    --tier-30k-primary: #f472b6;
+    --tier-30k-secondary: #ec4899;
+    --tier-30k-gradient: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+    --tier-30k-glow: rgba(244, 114, 182, 0.3);
+
+    /* 40K Tier - High Premium (₹35k-50k) */
+    --tier-40k-primary: #fb923c;
+    --tier-40k-secondary: #f97316;
+    --tier-40k-gradient: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    --tier-40k-glow: rgba(251, 146, 60, 0.3);
+
+    /* 50K Tier - Ultra Premium (₹50k-75k) */
+    --tier-50k-primary: #fbbf24;
+    --tier-50k-secondary: #f59e0b;
+    --tier-50k-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    --tier-50k-glow: rgba(251, 191, 36, 0.3);
+
+    /* Flagship Tier - Top End (₹75k+) */
+    --tier-flagship-primary: #e879f9;
+    --tier-flagship-secondary: #d946ef;
+    --tier-flagship-gradient: linear-gradient(135deg, #e879f9 0%, #a855f7 50%, #d946ef 100%);
+    --tier-flagship-glow: rgba(232, 121, 249, 0.4);
+
+    /* Refurbished Tier - Legacy GOAT */
+    --tier-refurb-primary: #fcd34d;
+    --tier-refurb-secondary: #ca8a04;
+    --tier-refurb-gradient: linear-gradient(135deg, #fcd34d 0%, #eab308 50%, #ca8a04 100%);
+    --tier-refurb-glow: rgba(252, 211, 77, 0.3);
+}
+
+/* ============================================
+   PRICE TIER CARD STYLING
+   ============================================ */
+
+/* 10K Tier Cards */
+.price-tier-10k .phone-card {
+    border: 2px solid var(--tier-10k-primary);
+    box-shadow: 0 0 20px var(--tier-10k-glow);
+}
+
+.price-tier-10k .phone-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 40px var(--tier-10k-glow);
+    border-color: var(--tier-10k-secondary);
+}
+
+.price-tier-10k .price-badge {
+    background: var(--tier-10k-gradient);
+}
+
+/* 15K Tier Cards */
+.price-tier-15k .phone-card {
+    border: 2px solid var(--tier-15k-primary);
+    box-shadow: 0 0 20px var(--tier-15k-glow);
+}
+
+.price-tier-15k .phone-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 40px var(--tier-15k-glow);
+    border-color: var(--tier-15k-secondary);
+}
+
+.price-tier-15k .price-badge {
+    background: var(--tier-15k-gradient);
+}
+
+/* 20K Tier Cards */
+.price-tier-20k .phone-card {
+    border: 2px solid var(--tier-20k-primary);
+    box-shadow: 0 0 25px var(--tier-20k-glow);
+}
+
+.price-tier-20k .phone-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 50px var(--tier-20k-glow);
+    border-color: var(--tier-20k-secondary);
+}
+
+.price-tier-20k .price-badge {
+    background: var(--tier-20k-gradient);
+}
+
+/* 30K Tier Cards */
+.price-tier-30k .phone-card {
+    border: 2px solid var(--tier-30k-primary);
+    box-shadow: 0 0 30px var(--tier-30k-glow);
+}
+
+.price-tier-30k .phone-card:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 15px 60px var(--tier-30k-glow);
+    border-color: var(--tier-30k-secondary);
+}
+
+.price-tier-30k .price-badge {
+    background: var(--tier-30k-gradient);
+}
+
+/* 40K Tier Cards */
+.price-tier-40k .phone-card {
+    border: 3px solid var(--tier-40k-primary);
+    box-shadow: 0 0 35px var(--tier-40k-glow);
+}
+
+.price-tier-40k .phone-card:hover {
+    transform: translateY(-12px) scale(1.03);
+    box-shadow: 0 18px 70px var(--tier-40k-glow);
+    border-color: var(--tier-40k-secondary);
+}
+
+.price-tier-40k .price-badge {
+    background: var(--tier-40k-gradient);
+}
+
+/* 50K Tier Cards */
+.price-tier-50k .phone-card {
+    border: 3px solid var(--tier-50k-primary);
+    box-shadow: 0 0 40px var(--tier-50k-glow);
+}
+
+.price-tier-50k .phone-card:hover {
+    transform: translateY(-15px) scale(1.03);
+    box-shadow: 0 20px 80px var(--tier-50k-glow);
+    border-color: var(--tier-50k-secondary);
+}
+
+.price-tier-50k .price-badge {
+    background: var(--tier-50k-gradient);
+}
+
+/* Flagship Tier Cards */
+.price-tier-flagship .phone-card {
+    border: 4px solid var(--tier-flagship-primary);
+    box-shadow: 0 0 50px var(--tier-flagship-glow);
+    position: relative;
+    overflow: hidden;
+}
+
+.price-tier-flagship .phone-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(232, 121, 249, 0.1), transparent);
+    animation: flagshipShine 3s infinite;
+}
+
+@keyframes flagshipShine {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.price-tier-flagship .phone-card:hover {
+    transform: translateY(-15px) scale(1.05);
+    box-shadow: 0 25px 100px var(--tier-flagship-glow);
+    border-color: var(--tier-flagship-secondary);
+}
+
+.price-tier-flagship .price-badge {
+    background: var(--tier-flagship-gradient);
+    font-weight: 700;
+    font-size: 1.2em;
+}
+
+/* Refurbished Tier Cards */
+.price-tier-refurbished .phone-card {
+    border: 3px solid var(--tier-refurb-primary);
+    box-shadow: 0 0 30px var(--tier-refurb-glow);
+    position: relative;
+}
+
+.price-tier-refurbished .phone-card::after {
+    content: 'GOAT';
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--tier-refurb-gradient);
+    color: #000;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.75em;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(252, 211, 77, 0.5);
+}
+
+.price-tier-refurbished .phone-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 60px var(--tier-refurb-glow);
+}
+
+.price-tier-refurbished .price-badge {
+    background: var(--tier-refurb-gradient);
+    color: #000;
+}
+
+/* ============================================
+   PRICE BADGES
+   ============================================ */
+
+.price-badge {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin-top: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.price-badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   VFM RATING STARS
+   ============================================ */
+
+.vfm-rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
+.vfm-rating .stars {
+    display: flex;
+    gap: 2px;
+}
+
+.vfm-rating .star {
+    color: #fbbf24;
+    font-size: 1.2em;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+}
+
+.vfm-rating .star.empty {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.vfm-rating .score {
+    margin-left: 8px;
+    color: #fff;
+    font-weight: 600;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.85em;
+}
+
+/* ============================================
+   BATTERY CAPACITY INDICATORS
+   ============================================ */
+
+.battery-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 8px 15px;
+    background: rgba(74, 222, 128, 0.1);
+    border-radius: 20px;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.battery-indicator.mega-battery {
+    background: rgba(251, 191, 36, 0.1);
+    border-color: rgba(251, 191, 36, 0.4);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+}
+
+.battery-indicator .icon {
+    font-size: 1.5em;
+}
+
+.battery-indicator .capacity {
+    font-weight: 700;
+    color: #4ade80;
+    font-size: 1.1em;
+}
+
+.battery-indicator.mega-battery .capacity {
+    color: #fbbf24;
+}
+
+/* ============================================
+   SPECIAL FEATURE BADGES
+   ============================================ */
+
+.feature-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.feature-badge {
+    padding: 5px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    font-size: 0.75em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.feature-badge:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.feature-badge.gaming {
+    border-color: #f97316;
+    color: #fb923c;
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.3);
+}
+
+.feature-badge.camera {
+    border-color: #8b5cf6;
+    color: #a78bfa;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+}
+
+.feature-badge.battery {
+    border-color: #22c55e;
+    color: #4ade80;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+}
+
+.feature-badge.charging {
+    border-color: #eab308;
+    color: #fbbf24;
+    box-shadow: 0 0 15px rgba(234, 179, 8, 0.3);
+}
+
+.feature-badge.display {
+    border-color: #3b82f6;
+    color: #60a5fa;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+}
+
+/* ============================================
+   STATUS INDICATORS
+   ============================================ */
+
+.status-indicator {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.75em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.status-indicator.new-launch {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.best-seller {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: #000;
+}
+
+.status-indicator.low-stock {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: white;
+}
+
+.status-indicator.pre-order {
+    background: linear-gradient(135deg, #a855f7, #9333ea);
+    color: white;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 4px 30px rgba(239, 68, 68, 0.8);
+    }
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+    .price-badge {
+        font-size: 1em;
+        padding: 6px 15px;
+    }
+
+    .vfm-rating {
+        font-size: 0.85em;
+    }
+
+    .feature-badge {
+        font-size: 0.7em;
+        padding: 4px 10px;
+    }
+
+    .battery-indicator {
+        padding: 6px 12px;
+    }
+
+    .status-indicator {
+        font-size: 0.65em;
+        padding: 4px 10px;
+    }
+}

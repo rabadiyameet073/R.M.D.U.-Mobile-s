@@ -1,0 +1,120 @@
+/* --- Main Content & Title --- */
+.main {
+    padding: 20px;
+    margin-left: 250px; /* Same as sidebar width */
+    color: white;
+}
+
+.main-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+    font-weight: bold;
+}
+
+/* --- Product Sections --- */
+.main section {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 20px;
+}
+
+/* --- Mobile Card Styling --- */
+.mobile-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.mobile-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.5);
+}
+
+.mobile-card img {
+    max-width: 100%;
+    height: 200px;
+    object-fit: contain;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+}
+
+.mobile-title {
+    font-size: 1.4rem;
+    margin: 10px 0;
+    font-weight: 600;
+    color: #fff;
+}
+
+.mobile-price-row {
+    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 15px;
+}
+
+.mobile-mrp {
+    font-size: 1rem;
+    color: #ccc;
+    text-decoration: line-through;
+}
+
+.mobile-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4CAF50; /* A vibrant green for price */
+}
+
+/* --- Card Buttons --- */
+.mobile-card-buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.info-btn,
+.add-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.info-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.info-btn a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.info-btn:hover {
+    background-color: #0056b3;
+}
+
+.add-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.add-btn:hover {
+    background-color: #218838;
+}

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Champion - RMDU Mobiles</title>
+    <link rel="stylesheet" href="frontend/css/premium-design-system.css">
+    <link rel="stylesheet" href="frontend/css/section.css">
+    <link rel="stylesheet" href="frontend/css/unified-nav-sidebar.css">
+    <link rel="stylesheet" href="frontend/css/price-tier-system.css">
+    <link rel="stylesheet" href="frontend/css/themes.css">
+    <link rel="stylesheet" href="frontend/css/modal-device-details.css">
+</head>
+
+<body class="camera-page">
+    <video autoplay loop muted playsinline id="background-video" preload="metadata">
+        <source src="media/camera.mp4" type="video/mp4">
+    </video>
+
+    <header class="heading">
+        <nav class="nav">
+            <div class="home">
+                <a href="index.html">&#x2302;</a>
+            </div>
+            <div class="nav-left">
+                Camera Champion
+            </div>
+            <div class="nav-center">
+                <img class="logo" src="media/logo.png" alt="company logo">
+            </div>
+            <div class="nav-right">
+                <div class="search-container" id="searchContainer">
+                    <button class="search-button" id="searchButton">
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                            <path
+                                d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
+                        </svg>
+                    </button>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search camera phones...">
+                </div>
+                <button class="cart">
+                    <a href="cart.html" class="cart-icon">&#128722;</a>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="icon">Choose Category</div>
+            <button class="icon" onclick="filterPhones('all')">All</button>
+            <button class="icon" onclick="filterPhones('30k')">Under 30k</button>
+            <button class="icon" onclick="filterPhones('40k')">30k-40k</button>
+            <button class="icon" onclick="filterPhones('50k')">40k-90k</button>
+            <button class="icon" onclick="filterPhones('flagship')">Flagships (90k+)</button>
+        </div>
+
+        <main class="main">
+            <h2 class="main-title">📸 The DSLRs in Your Pocket</h2>
+
+            <!-- MID-RANGE CAMERA PHONES -->
+            <section class="phone30k">
+
+                <!-- 1. Vivo V60e -->
+                <div class="mobile-card" data-price="29900">
+                    <img src="https://m.media-amazon.com/images/I/81iogWYVvBL._SX679_.jpg" alt="Vivo V60e" />
+                    <h3 class="mobile-title">Vivo V60e</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹33,999</span>
+                        <span class="mobile-price">₹29,900</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('vivo-v60e')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 2. Vivo V50 -->
+                <div class="mobile-card" data-price="29999">
+                    <img src="https://m.media-amazon.com/images/I/81WJm07A0tL._SX679_.jpg" alt="Vivo V50" />
+                    <h3 class="mobile-title">Vivo V50</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹33,999</span>
+                        <span class="mobile-price">₹29,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('vivo-v50')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 3. Realme 16 Pro Plus -->
+                <div class="mobile-card" data-price="30999">
+                    <img src="https://m.media-amazon.com/images/I/71Rbz8CqUgL._SX679_.jpg" alt="Realme 16 Pro Plus" />
+                    <h3 class="mobile-title">Realme 16 Pro Plus</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹35,999</span>
+                        <span class="mobile-price">₹30,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('realme-16-proplus')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 4. Xiaomi 14 Civi -->
+                <div class="mobile-card" data-price="26999">
+                    <img src="https://i02.appmifile.com/mi-com-product/fly-birds/xiaomi-civi-4-pro/gallery-1.png"
+                        alt="Xiaomi 14 Civi" />
+                    <h3 class="mobile-title">Xiaomi 14 Civi</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹31,999</span>
+                        <span class="mobile-price">₹26,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('xiaomi-14-civi')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 5. Realme 15 Pro -->
+                <div class="mobile-card" data-price="25999">
+                    <img src="https://m.media-amazon.com/images/I/71cGJKLDy9L._SX679_.jpg" alt="Realme 15 Pro" />
+                    <h3 class="mobile-title">Realme 15 Pro</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹29,999</span>
+                        <span class="mobile-price">₹25,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('realme-15-pro')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PREMIUM CAMERA PHONES -->
+            <section class="phone40k">
+
+                <!-- 6. Samsung Galaxy S24 FE -->
+                <div class="mobile-card" data-price="33669">
+                    <img src="https://images.samsung.com/is/image/samsung/p6pim/in/2401/gallery/in-galaxy-s24-s928-sm-s928bzkgins-thumb-539573066"
+                        alt="Samsung S24 FE" />
+                    <h3 class="mobile-title">Samsung Galaxy S24 FE</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹39,999</span>
+                        <span class="mobile-price">₹33,669</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('samsung-s24-fe-camera')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 7. Vivo T4 Ultra -->
+                <div class="mobile-card" data-price="35999">
+                    <img src="https://m.media-amazon.com/images/I/81iogWYVvBL._SX679_.jpg" alt="Vivo T4 Ultra" />
+                    <h3 class="mobile-title">Vivo T4 Ultra</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹41,999</span>
+                        <span class="mobile-price">₹35,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('vivo-t4-ultra')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 8. Oppo Reno 14 -->
+                <div class="mobile-card" data-price="37999">
+                    <img src="https://m.media-amazon.com/images/I/61VbL42BqXL._SX679_.jpg" alt="Oppo Reno 14" />
+                    <h3 class="mobile-title">Oppo Reno 14</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹42,999</span>
+                        <span class="mobile-price">₹37,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('oppo-reno14')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 9. Oppo Reno 15 Pro -->
+                <div class="mobile-card" data-price="39999">
+                    <img src="https://m.media-amazon.com/images/I/61VbL42BqXL._SX679_.jpg" alt="Oppo Reno 15 Pro" />
+                    <h3 class="mobile-title">Oppo Reno 15 Pro</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹44,999</span>
+                        <span class="mobile-price">₹39,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('oppo-reno15-pro')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 10. Google Pixel 9a -->
+                <div class="mobile-card" data-price="40000">
+                    <img src="https://lh3.googleusercontent.com/lUwDRBQbpGVl6qTqd6Kqy_2N4HFMcBZEbxV5l9yRTNnKT3eqG8hGhRxwF8Sw9jEYAqJCVkqblBw=s1600"
+                        alt="Google Pixel 9a" />
+                    <h3 class="mobile-title">Google Pixel 9a</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹45,999</span>
+                        <span class="mobile-price">₹40,000</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('pixel-9a')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 11. Motorola Edge 50 Ultra -->
+                <div class="mobile-card" data-price="48200">
+                    <img src="https://m.media-amazon.com/images/I/71a49cULzIL._SX679_.jpg"
+                        alt="Motorola Edge 50 Ultra" />
+                    <h3 class="mobile-title">Motorola Edge 50 Ultra</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹54,999</span>
+                        <span class="mobile-price">₹48,200</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('moto-edge50-ultra')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 12. Honor 500 Pro -->
+                <div class="mobile-card" data-price="50000">
+                    <img src="https://m.media-amazon.com/images/I/71RxOp16SQL._SX679_.jpg" alt="Honor 500 Pro" />
+                    <h3 class="mobile-title">Honor 500 Pro</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹56,999</span>
+                        <span class="mobile-price">₹50,000</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('honor-500-pro')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FLAGSHIP CAMERA PHONES -->
+            <section class="phone50k+">
+
+                <!-- 13. OnePlus 13 -->
+                <div class="mobile-card" data-price="69999">
+                    <img src="https://image01.oneplus.net/ebp/202412/06/1-m00-63-9a-cpgm72ayg9gagghvaaoiq28e8xo248.png"
+                        alt="OnePlus 13" />
+                    <h3 class="mobile-title">OnePlus 13</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹74,999</span>
+                        <span class="mobile-price">₹69,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('oneplus-13')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 14. Oppo Find X8 Ultra -->
+                <div class="mobile-card" data-price="80000">
+                    <img src="https://m.media-amazon.com/images/I/61VbL42BqXL._SX679_.jpg" alt="Oppo Find X8 Ultra" />
+                    <h3 class="mobile-title">Oppo Find X8 Ultra</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹89,999</span>
+                        <span class="mobile-price">₹80,000</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('oppo-findx8-ultra')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 15. Google Pixel 10 Pro -->
+                <div class="mobile-card" data-price="89999">
+                    <img src="https://lh3.googleusercontent.com/lUwDRBQbpGVl6qTqd6Kqy_2N4HFMcBZEbxV5l9yRTNnKT3eqG8hGhRxwF8Sw9jEYAqJCVkqblBw=s1600"
+                        alt="Pixel 10 Pro" />
+                    <h3 class="mobile-title">Google Pixel 10 Pro</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹99,999</span>
+                        <span class="mobile-price">₹89,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('pixel-10-pro')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 16. Samsung Galaxy S25 Ultra -->
+                <div class="mobile-card" data-price="104400">
+                    <img src="https://images.samsung.com/is/image/samsung/p6pim/in/galaxy-s24-ultra/gallery/in-galaxy-s24-ultra-s928-sm-s928bztcins-thumb-539573072"
+                        alt="Samsung S25 Ultra" />
+                    <h3 class="mobile-title">Samsung Galaxy S25 Ultra</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹1,19,999</span>
+                        <span class="mobile-price">₹1,04,400</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('samsung-s25-ultra')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 17. Oppo Find X9 Pro -->
+                <div class="mobile-card" data-price="109999">
+                    <img src="https://m.media-amazon.com/images/I/61VbL42BqXL._SX679_.jpg" alt="Oppo Find X9 Pro" />
+                    <h3 class="mobile-title">Oppo Find X9 Pro</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹1,24,999</span>
+                        <span class="mobile-price">₹1,09,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('oppo-findx9-pro')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 18. Xiaomi 15 Ultra -->
+                <div class="mobile-card" data-price="109999">
+                    <img src="https://i02.appmifile.com/mi-com-product/fly-birds/xiaomi-15-ultra/pc/gallery-1.png"
+                        alt="Xiaomi 15 Ultra" />
+                    <h3 class="mobile-title">Xiaomi 15 Ultra</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹1,24,999</span>
+                        <span class="mobile-price">₹1,09,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('xiaomi-15-ultra')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 19. Vivo X300 Pro -->
+                <div class="mobile-card" data-price="109999">
+                    <img src="https://m.media-amazon.com/images/I/81iogWYVvBL._SX679_.jpg" alt="Vivo X300 Pro" />
+                    <h3 class="mobile-title">Vivo X300 Pro</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹1,24,999</span>
+                        <span class="mobile-price">₹1,09,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('vivo-x300-pro')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 20. Apple iPhone 17 Pro Max -->
+                <div class="mobile-card" data-price="149900">
+                    <img src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-16-pro-finish-select-202409-6-9inch-deserttitanium?wid=5120&hei=2880&fmt=p-jpg&qlt=80"
+                        alt="iPhone 17 Pro Max" />
+                    <h3 class="mobile-title">Apple iPhone 17 Pro Max</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹1,69,900</span>
+                        <span class="mobile-price">₹1,49,900</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('iphone-17-promax')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+        <footer></footer>
+    </div>
+
+    <!-- Modal for device details -->
+    <div id="deviceModal" class="modal">
+        <div class="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="modal-device-image">
+                <img id="modalImage" src="" alt="Device Image">
+            </div>
+            <div class="modal-device-details">
+                <h2 id="modalTitle"></h2>
+                <div class="modal-specs">
+                    <div class="spec-group">
+                        <div class="spec-label">Launch Year</div>
+                        <div class="spec-value" id="modalLaunchYear"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Status</div>
+                        <div class="spec-value" id="modalStatus"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Display</div>
+                        <div class="spec-value" id="modalDisplay"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Performance</div>
+                        <div class="spec-value" id="modalPerformance"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Battery</div>
+                        <div class="spec-value" id="modalBattery"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Camera</div>
+                        <div class="spec-value" id="modalCamera"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Connectivity</div>
+                        <div class="spec-value" id="modalConnectivity"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Price</div>
+                        <div class="spec-value" id="modalPrice"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">VFM Rating</div>
+                        <div class="spec-value" id="modalVFM"></div>
+                    </div>
+                </div>
+                <div class="modal-justification">
+                    <h3>Category Justification</h3>
+                    <p id="modalJustification"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="frontend/js/toast-notifications.js"></script>
+    <script src="frontend/js/unified-cart.js"></script>
+    <script src="frontend/js/global-functionality.js"></script>
+    <script src="frontend/js/complete-functionality.js"></script>
+    <script src="frontend/js/utilities.js"></script>
+    <script src="frontend/js/product-page.js"></script>
+    <script src="frontend/js/modal-device-details.js"></script>
+    <script src="frontend/js/device-data-extended.js"></script>
+</body>
+
+</html>

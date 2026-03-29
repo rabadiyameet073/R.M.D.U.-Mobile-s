@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist - R.M.D.U'S Mobile</title>
+    <link rel="stylesheet" href="frontend/css/style.css">
+    <link rel="stylesheet" href="frontend/css/wishlist.css">
+    <link rel="stylesheet" href="frontend/css/premium-backgrounds.css">
+    <link rel="stylesheet" href="frontend/css/utilities.css">
+</head>
+
+<body>
+    <!-- Premium Animated Background -->
+    <div class="premium-bg-container wishlist-premium-bg">
+        <div class="glass-overlay"></div>
+        <div class="particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+
+    <header class="heading">
+        <nav class="nav">
+            <div class="home">
+                <a href="index.html">&#x2302;</a>
+            </div>
+            <div class="nav-left">
+                My Wishlist
+            </div>
+            <div class="nav-center">
+                <img class="logo" src="media/logo.png" alt="company logo">
+            </div>
+            <div class="nav-right">
+                <div class="search-container" id="searchContainer">
+                    <button class="search-button" id="searchButton">
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                            <path
+                                d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
+                        </svg>
+                    </button>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search...">
+                </div>
+                <button class="cart">
+                    <a href="cart.html" class="cart-icon">&#128722;</a>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="wishlist-page">
+        <div class="wishlist-header">
+            <h1>❤️ My Wishlist</h1>
+            <div class="wishlist-count" id="wishlistCount">Loading...</div>
+        </div>
+
+        <div id="wishlistContainer" class="wishlist-grid">
+            <div class="wishlist-empty">
+                <div class="wishlist-empty-icon">💔</div>
+                <h2>Your wishlist is empty</h2>
+                <p>Start adding items you love!</p>
+                <a href="index.html" class="wishlist-empty-btn">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="frontend/js/toast-notifications.js"></script>
+    <script src="frontend/js/mini-cart.js"></script>
+    <script src="frontend/js/global-functionality.js"></script>
+    <script src="frontend/js/complete-functionality.js"></script>
+    <script>
+        // Load wishlist items
+        async function loadWishlist() {
+            try {
+                // Check if logged in
+                const sessionCheck = await fetch('/backend/session.php?action=check');
+                const sessionData = await sessionCheck.json();
+
+                if (!sessionData.logged_in) {
+                    document.getElementById('wishlistContainer').innerHTML = `
+                        <div class="wishlist-empty">
+                            <div class="wishlist-empty-icon">🔒</div>
+                            <h2>Please Login</h2>
+                            <p>You need to be logged in to view your wishlist</p>
+                            <a href="login.html" class="wishlist-empty-btn">Login Now</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const response = await fetch('/backend/wishlist/get.php');
+                const data = await response.json();
+
+                const container = document.getElementById('wishlistContainer');
+                const countElement = document.getElementById('wishlistCount');
+
+                if (data.success && data.items && data.items.length > 0) {
+                    countElement.textContent = `${data.items.length} item${data.items.length !== 1 ? 's' : ''}`;
+                    
+                    container.innerHTML = data.items.map(item => `
+                        <div class="wishlist-item">
+                            <div class="wishlist-item-header">
+                                <button class="wishlist-btn active" onclick="removeFromWishlist('${item.name.replace(/'/g, "\\'")}', ${item.id})" aria-label="Remove from wishlist">
+                                    ❤
+                                </button>
+                            </div>
+                            <img src="${item.image || '/media/logo.png'}" alt="${item.name}" class="wishlist-item-image">
+                            <div class="wishlist-item-name">${item.name}</div>
+                            <div class="wishlist-item-price">₹${parseFloat(item.price).toLocaleString('en-IN')}</div>
+                            <div class="wishlist-item-actions">
+                                <button class="wishlist-item-btn wishlist-item-btn-remove" onclick="removeFromWishlist('${item.name.replace(/'/g, "\\'")}', ${item.id})">
+                                    Remove
+                                </button>
+                                <button class="wishlist-item-btn wishlist-item-btn-cart" onclick="addToCartFromWishlist('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.image}')">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    countElement.textContent = '0 items';
+                    container.innerHTML = `
+                        <div class="wishlist-empty">
+                            <div class="wishlist-empty-icon">💔</div>
+                            <h2>Your wishlist is empty</h2>
+                            <p>Start adding items you love!</p>
+                            <a href="index.html" class="wishlist-empty-btn">Continue Shopping</a>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading wishlist:', error);
+                if (window.showToast) {
+                    window.showToast('Error loading wishlist', 'error');
+                }
+            }
+        }
+
+        async function removeFromWishlist(productName, wishlistId) {
+            try {
+                const formData = new FormData();
+                formData.append('product_name', productName);
+                if (wishlistId) {
+                    formData.append('wishlist_id', wishlistId);
+                }
+
+                const response = await fetch('/backend/wishlist/remove.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (window.showToast) {
+                        window.showToast('Removed from wishlist', 'success');
+                    }
+                    loadWishlist();
+                } else {
+                    if (window.showToast) {
+                        window.showToast(data.message || 'Failed to remove item', 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Error removing from wishlist:', error);
+                if (window.showToast) {
+                    window.showToast('Error removing item', 'error');
+                }
+            }
+        }
+
+        async function addToCartFromWishlist(productName, price, image) {
+            try {
+                const formData = new FormData();
+                formData.append('product_name', productName);
+                formData.append('price', price);
+                formData.append('quantity', 1);
+
+                const response = await fetch('/backend/cart/add_to_cart.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (window.showToast) {
+                        window.showToast('Added to cart!', 'success');
+                    }
+                    if (window.miniCart) {
+                        window.miniCart.loadCartCount();
+                        window.miniCart.loadCartItems();
+                    }
+                } else {
+                    if (window.showToast) {
+                        window.showToast(data.message || 'Failed to add to cart', 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                if (window.showToast) {
+                    window.showToast('Error adding to cart', 'error');
+                }
+            }
+        }
+
+        // Load wishlist on page load
+        document.addEventListener('DOMContentLoaded', loadWishlist);
+    </script>
+</body>
+
+</html>

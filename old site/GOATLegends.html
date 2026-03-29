@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOAT Legends - RMDU Mobiles</title>
+    <link rel="stylesheet" href="frontend/css/premium-design-system.css">
+    <link rel="stylesheet" href="frontend/css/section.css">
+    <link rel="stylesheet" href="frontend/css/unified-nav-sidebar.css">
+    <link rel="stylesheet" href="frontend/css/price-tier-system.css">
+    <link rel="stylesheet" href="frontend/css/themes.css">
+    <link rel="stylesheet" href="frontend/css/modal-device-details.css">
+</head>
+
+<body class="goat-page">
+    <video autoplay loop muted playsinline id="background-video" preload="metadata">
+        <source src="media/goat.mp4" type="video/mp4">
+    </video>
+
+    <header class="heading">
+        <nav class="nav">
+            <div class="home">
+                <a href="index.html">&#x2302;</a>
+            </div>
+            <div class="nav-left">
+                GOAT Legends
+            </div>
+            <div class="nav-center">
+                <img class="logo" src="media/logo.png" alt="company logo">
+            </div>
+            <div class="nav-right">
+                <div class="search-container" id="searchContainer">
+                    <button class="search-button" id="searchButton">
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                            <path
+                                d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
+                        </svg>
+                    </button>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search GOAT phones...">
+                </div>
+                <button class="cart">
+                    <a href="cart.html" class="cart-icon">&#128722;</a>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="icon">Choose Category</div>
+            <button class="icon" onclick="filterPhones('all')">All</button>
+            <button class="icon" onclick="filterPhones('20k')">Under 20k</button>
+            <button class="icon" onclick="filterPhones('30k')">20k-35k</button>
+            <button class="icon" onclick="filterPhones('40k')">35k-50k</button>
+            <button class="icon" onclick="filterPhones('50k')">50k+</button>
+        </div>
+
+        <main class="main">
+            <h2 class="main-title">🐐 Refurbished Flagships - Legends Reborn</h2>
+
+            <!-- BUDGET GOAT PHONES (Under 20k) -->
+            <section class="phone20k">
+
+                <!-- 1. OnePlus 9R (Refurb) -->
+                <div class="mobile-card" data-price="12000">
+                    <img src="https://image01.oneplus.net/ebp/202403/14/1-m00-53-4a-cpgm7matqceaak7haag4hpqtf9w053.png"
+                        alt="OnePlus 9R Refurb" />
+                    <h3 class="mobile-title">OnePlus 9R <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹39,999</span>
+                        <span class="mobile-price">₹12,000</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('oneplus-9r-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 2. Samsung Galaxy S20 FE (Refurb) -->
+                <div class="mobile-card" data-price="14999">
+                    <img src="https://images.samsung.com/is/image/samsung/p6pim/in/galaxy-s20-fe/gallery/in-galaxy-s20-fe-g780-sm-g780gzbdins-thumb-240924673"
+                        alt="Samsung S20 FE Refurb" />
+                    <h3 class="mobile-title">Samsung Galaxy S20 FE <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹49,999</span>
+                        <span class="mobile-price">₹14,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('samsung-s20fe-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 3. Google Pixel 6a (Refurb) -->
+                <div class="mobile-card" data-price="17999">
+                    <img src="https://lh3.googleusercontent.com/lUwDRBQbpGVl6qTqd6Kqy_2N4HFMcBZEbxV5l9yRTNnKT3eqG8hGhRxwF8Sw9jEYAqJCVkqblBw=s1600"
+                        alt="Pixel 6a Refurb" />
+                    <h3 class="mobile-title">Google Pixel 6a <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹43,999</span>
+                        <span class="mobile-price">₹17,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('pixel-6a-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 4. Xiaomi 11T Pro (Refurb) -->
+                <div class="mobile-card" data-price="18999">
+                    <img src="https://i02.appmifile.com/mi-com-product/fly-birds/xiaomi-11t-pro/gallery-1.png"
+                        alt="Xiaomi 11T Pro Refurb" />
+                    <h3 class="mobile-title">Xiaomi 11T Pro <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹39,999</span>
+                        <span class="mobile-price">₹18,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('xiaomi-11t-pro-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MID-RANGE GOAT PHONES (20k-35k) -->
+            <section class="phone30k">
+
+                <!-- 5. iPhone 13 (Refurb) -->
+                <div class="mobile-card" data-price="27399">
+                    <img src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-13-blue-select-2021?wid=940&hei=1112&fmt=png-alpha&.v=1629842709000"
+                        alt="iPhone 13 Refurb" />
+                    <h3 class="mobile-title">Apple iPhone 13 <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹59,900</span>
+                        <span class="mobile-price">₹27,399</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('iphone-13-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 6. Google Pixel 7 Pro (Refurb) -->
+                <div class="mobile-card" data-price="29999">
+                    <img src="https://lh3.googleusercontent.com/lUwDRBQbpGVl6qTqd6Kqy_2N4HFMcBZEbxV5l9yRTNnKT3eqG8hGhRxwF8Sw9jEYAqJCVkqblBw=s1600"
+                        alt="Pixel 7 Pro Refurb" />
+                    <h3 class="mobile-title">Google Pixel 7 Pro <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹84,999</span>
+                        <span class="mobile-price">₹29,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('pixel-7-pro-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 7. OnePlus 9 Pro (Refurb) -->
+                <div class="mobile-card" data-price="20699">
+                    <img src="https://image01.oneplus.net/ebp/202403/14/1-m00-53-4a-cpgm7matqceaak7haag4hpqtf9w053.png"
+                        alt="OnePlus 9 Pro Refurb" />
+                    <h3 class="mobile-title">OnePlus 9 Pro <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹64,999</span>
+                        <span class="mobile-price">₹20,699</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('oneplus-9-pro-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 8. Samsung S22 (Refurb) -->
+                <div class="mobile-card" data-price="28999">
+                    <img src="https://images.samsung.com/is/image/samsung/p6pim/in/2202/gallery/in-galaxy-s22-s901-sm-s901ezkcins-thumb-530901882"
+                        alt="Samsung S22 Refurb" />
+                    <h3 class="mobile-title">Samsung Galaxy S22 <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹72,999</span>
+                        <span class="mobile-price">₹28,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('samsung-s22-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 9. Xiaomi 12 Pro (Refurb) -->
+                <div class="mobile-card" data-price="26000">
+                    <img src="https://i02.appmifile.com/mi-com-product/fly-birds/xiaomi-12-pro/gallery-1.png"
+                        alt="Xiaomi 12 Pro Refurb" />
+                    <h3 class="mobile-title">Xiaomi 12 Pro <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹62,999</span>
+                        <span class="mobile-price">₹26,000</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('xiaomi-12-pro-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 10. Oppo Find X5 Pro (Refurb) -->
+                <div class="mobile-card" data-price="31999">
+                    <img src="https://m.media-amazon.com/images/I/61VbL42BqXL._SX679_.jpg"
+                        alt="Oppo Find X5 Pro Refurb" />
+                    <h3 class="mobile-title">Oppo Find X5 Pro <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹79,999</span>
+                        <span class="mobile-price">₹31,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('oppo-findx5-pro-refurb')">More info
+                            &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PREMIUM GOAT PHONES (35k-50k) -->
+            <section class="phone40k">
+
+                <!-- 11. Samsung S22 Ultra (Refurb) -->
+                <div class="mobile-card" data-price="36999">
+                    <img src="https://images.samsung.com/is/image/samsung/p6pim/in/galaxy-s22-ultra/gallery/in-galaxy-s22-ultra-s908-sm-s908ezkgins-thumb-530900748"
+                        alt="Samsung S22 Ultra Refurb" />
+                    <h3 class="mobile-title">Samsung Galaxy S22 Ultra <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹1,09,999</span>
+                        <span class="mobile-price">₹36,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('samsung-s22-ultra-refurb')">More info
+                            &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 12. Samsung Note 20 Ultra (Refurb) -->
+                <div class="mobile-card" data-price="43699">
+                    <img src="https://images.samsung.com/is/image/samsung/p6pim/in/galaxy-note20/gallery/in-galaxy-note20-ultra-5g-n986-sm-n986bzkginu-thumb-270314975"
+                        alt="Note 20 Ultra Refurb" />
+                    <h3 class="mobile-title">Samsung Note 20 Ultra 5G <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹1,04,999</span>
+                        <span class="mobile-price">₹43,699</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('note-20-ultra-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 13. iPhone 14 Pro (Refurb) -->
+                <div class="mobile-card" data-price="45999">
+                    <img src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-14-pro-finish-select-202209-6-7inch-deeppurple?wid=5120&hei=2880&fmt=p-jpg&qlt=80"
+                        alt="iPhone 14 Pro Refurb" />
+                    <h3 class="mobile-title">Apple iPhone 14 Pro <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹1,29,900</span>
+                        <span class="mobile-price">₹45,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('iphone-14-pro-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 14. iPhone 15 (Refurb) -->
+                <div class="mobile-card" data-price="48000">
+                    <img src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch-blue?wid=5120&hei=2880&fmt=p-jpg&qlt=80"
+                        alt="iPhone 15 Refurb" />
+                    <h3 class="mobile-title">Apple iPhone 15 <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹79,900</span>
+                        <span class="mobile-price">₹48,000</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('iphone-15-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 15. OnePlus 11 (Refurb) -->
+                <div class="mobile-card" data-price="38999">
+                    <img src="https://image01.oneplus.net/ebp/202301/05/1-m00-44-c2-cpgm7y3wkemak25naadqhkdvg0g741.png"
+                        alt="OnePlus 11 Refurb" />
+                    <h3 class="mobile-title">OnePlus 11 <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹61,999</span>
+                        <span class="mobile-price">₹38,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('oneplus-11-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FLAGSHIP GOAT PHONES (50k+) -->
+            <section class="phone50k+">
+
+                <!-- 16. Samsung S23 Ultra (Refurb) -->
+                <div class="mobile-card" data-price="52399">
+                    <img src="https://images.samsung.com/is/image/samsung/p6pim/in/galaxy-s23-ultra/gallery/in-galaxy-s23-ultra-s918-sm-s918bzkcins-thumb-534850758"
+                        alt="Samsung S23 Ultra Refurb" />
+                    <h3 class="mobile-title">Samsung Galaxy S23 Ultra <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹1,24,999</span>
+                        <span class="mobile-price">₹52,399</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('samsung-s23-ultra-refurb')">More info
+                            &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 17. Google Pixel 8 Pro (Refurb) -->
+                <div class="mobile-card" data-price="54999">
+                    <img src="https://lh3.googleusercontent.com/lUwDRBQbpGVl6qTqd6Kqy_2N4HFMcBZEbxV5l9yRTNnKT3eqG8hGhRxwF8Sw9jEYAqJCVkqblBw=s1600"
+                        alt="Pixel 8 Pro Refurb" />
+                    <h3 class="mobile-title">Google Pixel 8 Pro <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹1,06,999</span>
+                        <span class="mobile-price">₹54,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('pixel-8-pro-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 18. iPhone 14 Pro Max (Refurb) -->
+                <div class="mobile-card" data-price="58000">
+                    <img src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-14-pro-finish-select-202209-6-7inch-deeppurple?wid=5120&hei=2880&fmt=p-jpg&qlt=80"
+                        alt="iPhone 14 Pro Max Refurb" />
+                    <h3 class="mobile-title">Apple iPhone 14 Pro Max <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹1,59,900</span>
+                        <span class="mobile-price">₹58,000</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('iphone-14-promax-refurb')">More info
+                            &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 19. iPhone 15 Pro (Refurb) -->
+                <div class="mobile-card" data-price="60000">
+                    <img src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-1inch-naturaltitanium?wid=5120&hei=2880&fmt=p-jpg&qlt=80"
+                        alt="iPhone 15 Pro Refurb" />
+                    <h3 class="mobile-title">Apple iPhone 15 Pro <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹1,34,900</span>
+                        <span class="mobile-price">₹60,000</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('iphone-15-pro-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 20. OnePlus 12 (Refurb) -->
+                <div class="mobile-card" data-price="51999">
+                    <img src="https://image01.oneplus.net/ebp/202312/08/1-m00-5f-b9-cpgm7mdjm4wafdluaai2dqw0y8k014.png"
+                        alt="OnePlus 12 Refurb" />
+                    <h3 class="mobile-title">OnePlus 12 <span class="goat-badge">GOAT</span></h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹69,999</span>
+                        <span class="mobile-price">₹51,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('oneplus-12-refurb')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+        <footer></footer>
+    </div>
+
+    <!-- Modal for device details -->
+    <div id="deviceModal" class="modal">
+        <div class="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="modal-device-image">
+                <img id="modalImage" src="" alt="Device Image">
+            </div>
+            <div class="modal-device-details">
+                <h2 id="modalTitle"></h2>
+                <div class="modal-specs">
+                    <div class="spec-group">
+                        <div class="spec-label">Launch Year</div>
+                        <div class="spec-value" id="modalLaunchYear"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Status</div>
+                        <div class="spec-value" id="modalStatus"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Display</div>
+                        <div class="spec-value" id="modalDisplay"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Performance</div>
+                        <div class="spec-value" id="modalPerformance"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Battery</div>
+                        <div class="spec-value" id="modalBattery"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Camera</div>
+                        <div class="spec-value" id="modalCamera"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Connectivity</div>
+                        <div class="spec-value" id="modalConnectivity"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Price</div>
+                        <div class="spec-value" id="modalPrice"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">VFM Rating</div>
+                        <div class="spec-value" id="modalVFM"></div>
+                    </div>
+                </div>
+                <div class="modal-justification">
+                    <h3>Category Justification</h3>
+                    <p id="modalJustification"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="frontend/js/toast-notifications.js"></script>
+    <script src="frontend/js/unified-cart.js"></script>
+    <script src="frontend/js/global-functionality.js"></script>
+    <script src="frontend/js/complete-functionality.js"></script>
+    <script src="frontend/js/utilities.js"></script>
+    <script src="frontend/js/product-page.js"></script>
+    <script src="frontend/js/modal-device-details.js"></script>
+    <script src="frontend/js/device-data-extended.js"></script>
+</body>
+
+</html>

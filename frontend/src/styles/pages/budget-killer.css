@@ -1,0 +1,13 @@
+body[data-page='budget-killer'] {
+  --category-accent: #d9b16f;
+  --category-accent-soft: rgba(217, 177, 111, 0.68);
+  --category-page-bg: #090706;
+  --category-nav-bg: linear-gradient(to bottom, rgba(18, 10, 7, 0.88), rgba(8, 5, 3, 0.4));
+  --category-nav-border: rgba(217, 177, 111, 0.22);
+  --category-hero-overlay: linear-gradient(160deg, rgba(16, 9, 6, 0.76) 0%, rgba(10, 7, 5, 0.46) 45%, rgba(22, 11, 7, 0.82) 100%);
+  --category-cta-bg: rgba(255, 255, 255, 0.08);
+  --category-cta-border: rgba(217, 177, 111, 0.3);
+  --category-cta-hover-bg: rgba(217, 177, 111, 0.23);
+  --category-card-border: rgba(217, 177, 111, 0.22);
+  --category-card-bg: linear-gradient(160deg, rgba(217, 177, 111, 0.16) 0%, rgba(255, 255, 255, 0.03) 100%);
+}

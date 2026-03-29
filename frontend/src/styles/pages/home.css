@@ -1,0 +1,8 @@
+body[data-page='home'] {
+  --category-accent: var(--accent);
+  --category-accent-soft: rgba(201, 169, 110, 0.65);
+}
+
+body[data-page='home'] .rr-navbar.scrolled {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.62) 100%);
+}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Login</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <link rel="stylesheet" href="frontend/css/style.css">
+    <link rel="stylesheet" href="frontend/css/premium-backgrounds.css">
+</head>
+
+<body>
+    <!-- Premium Animated Background -->
+    <div class="premium-bg-container login-premium-bg">
+        <div class="glass-overlay"></div>
+        <div class="particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+
+    <div class="login-container">
+        <!-- connect form to login_handler.php -->
+        <form id="loginForm">
+            <h1>🔐 Welcome Back!</h1>
+            <p>Please enter your details to sign in.</p>
+
+            <div class="input-group">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required
+                    autocomplete="username">
+            </div>
+
+            <div class="input-group password-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required
+                    autocomplete="current-password">
+                <button type="button" class="toggle-password" onclick="togglePassword()">
+                    <i class="fa-solid fa-eye" id="toggleIcon"></i>
+                </button>
+            </div>
+
+            <div class="options-row">
+                <label class="remember-me">
+                    <input type="checkbox" id="rememberMe" name="rememberMe">
+                    <span class="checkmark"></span>
+                    <span class="label-text">Remember me</span>
+                </label>
+                <a href="#" class="forgot-password">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="login-button">
+                <span class="btn-icon">🔓</span>
+                <span class="btn-text">Log In</span>
+            </button>
+
+            <div class="divider">
+                <span>OR</span>
+            </div>
+
+            <div class="social-login">
+                <button type="button" class="social-btn google-btn">
+                    <i class="fa-brands fa-google"></i>
+                    <span>Continue with Google</span>
+                </button>
+                <button type="button" class="social-btn apple-btn">
+                    <i class="fa-brands fa-apple"></i>
+                    <span>Continue with Apple</span>
+                </button>
+            </div>
+
+            <div class="signup-link">
+                <p>Don't have an account? <a href="newacc.html">Create one</a></p>
+            </div>
+        </form>
+    </div>
+    <script src="frontend/js/toast-notifications.js"></script>
+    <script src="frontend/js/complete-functionality.js"></script>
+    <script src="frontend/js/login-page.js"></script>
+    <script>
+        // Enhance login page with toast notifications
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    // The login-page.js handles submission, but we'll enhance it
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.addEventListener('click', function() {
+                            // Toast will be shown by login-page.js if available
+                        });
+                    }
+                });
+            }
+
+            // Social login buttons
+            document.querySelectorAll('.social-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const provider = this.classList.contains('google-btn') ? 'Google' : 'Apple';
+                    if (window.showToast) {
+                        window.showToast(`${provider} login coming soon!`, 'info');
+                    } else {
+                        alert(`${provider} login is coming soon!`);
+                    }
+                });
+            });
+
+            // Forgot password link
+            const forgotPassword = document.querySelector('.forgot-password');
+            if (forgotPassword) {
+                forgotPassword.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (window.showToast) {
+                        window.showToast('Password reset feature coming soon!', 'info');
+                    } else {
+                        alert('Password reset feature coming soon!');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

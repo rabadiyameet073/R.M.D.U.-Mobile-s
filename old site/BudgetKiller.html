@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BudgetKiller</title>
+
+    <!-- Preconnect to external resources -->
+    <link rel="preconnect" href="https://m.media-amazon.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Critical CSS -->
+    <link rel="stylesheet" href="frontend/css/premium-design-system.css">
+    <link rel="stylesheet" href="frontend/css/section.css">
+    <link rel="stylesheet" href="frontend/css/unified-nav-sidebar.css">
+    <link rel="stylesheet" href="frontend/css/price-tier-system.css">
+    <link rel="stylesheet" href="frontend/css/themes.css">
+    <link rel="stylesheet" href="frontend/css/modal-device-details.css">
+    <link rel="stylesheet" href="frontend/css/performance-optimizations.css">
+</head>
+
+<body>
+    <video autoplay loop muted playsinline id="background-video" preload="metadata">
+        <source src="media/budget killer.mp4" type="video/mp4">
+    </video>
+    <header class="heading">
+        <nav class="nav">
+            <div class="home">
+                <a href="index.html">&#x2302;</a>
+            </div>
+            <div class="nav-left">
+                Budget Killer
+            </div>
+            <div class="nav-center">
+                <img class="logo" src="media/logo.png" alt="company logo">
+            </div>
+
+            <div class="nav-right">
+                <div class="search-container" id="searchContainer">
+                    <button class="search-button" id="searchButton">
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                            <path
+                                d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
+                        </svg>
+                    </button>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search your model...">
+
+                </div>
+                <button class="cart">
+                    <a href="cart.html" class="cart-icon">&#128722;</a>
+                </button>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+
+        <div class="sidebar">
+
+            <div class="icon">Choose Category</div>
+            <button class="icon" onclick="filterPhones('all')">All</button>
+            <button class="icon" onclick="filterPhones('10k')">Under 10k</button>
+            <button class="icon" onclick="filterPhones('20k')">10k-20k</button>
+            <button class="icon" onclick="filterPhones('30k')">20k-30k</button>
+            <button class="icon" onclick="filterPhones('40k')">30k-40k</button>
+            <button class="icon" onclick="filterPhones('50k')">40k-50k</button>
+            <button class="icon" onclick="filterPhones('50k+')">50k+</button>
+        </div>
+        <main class="main">
+            <h2 class="main-title">Our Top Picks</h2>
+            <section class="phone10k">
+                <div class="mobile-card">
+                    <img src="https://m.media-amazon.com/images/I/71d1ytcCntL._SX679_.jpg" alt="Redmi 13C" />
+                    <h3 class="mobile-title">Redmi 13C (4G)</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹10,999</span>
+                        <span class="mobile-price">₹7,699</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('redmi-13c-4g')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="mobile-card">
+                    <img src="https://m.media-amazon.com/images/I/8195A49fZbL._SX679_.jpg" alt="POCO C65" />
+                    <h3 class="mobile-title">POCO C65</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹10,999</span>
+                        <span class="mobile-price">₹7,499</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('poco-c65')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="mobile-card">
+                    <img src="https://m.media-amazon.com/images/I/61IiuWQcVjL._SX679_.jpg" alt="Samsung Galaxy M04" />
+                    <h3 class="mobile-title">Samsung Galaxy M04</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹11,999</span>
+                        <span class="mobile-price">₹8,499</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('samsung-m04')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+            <section class="phone20k">
+                <!-- 1. Realme P4x 5G -->
+                <div class="mobile-card" data-price="15999">
+                    <a href="https://gadgets.beebom.com/best-phones-under-20000" target="_blank">
+                        <img src="https://static1.pocketlintimages.com/wordpress/wp-content/uploads/wm/2024/03/realme-p-series-5g-promo.jpg"
+                            alt="Realme P4x 5G" />
+                    </a>
+                    <h3 class="mobile-title">Realme P4x 5G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹18,999</span>
+                        <span class="mobile-price">₹15,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('realme-p4x')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 2. Moto G67 Power -->
+                <div class="mobile-card" data-price="15629">
+                    <a href="https://www.91mobiles.com/list-of-phones/7000mah-mobile-phones-under-20000"
+                        target="_blank">
+                        <img src="https://i.gadgets360cdn.com/large/moto_g67_power_1_1735301516716.jpg"
+                            alt="Moto G67 Power" />
+                    </a>
+                    <h3 class="mobile-title">Moto G67 Power</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹17,999</span>
+                        <span class="mobile-price">₹15,629</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('moto-g67')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 3. Samsung Galaxy M14 5G -->
+                <div class="mobile-card" data-price="10999">
+                    <a href="https://www.cashify.in/best-mobile-phones-under-12000-rs-in-india" target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/81f43KRVFNL._SX679_.jpg"
+                            alt="Samsung Galaxy M14 5G" />
+                    </a>
+                    <h3 class="mobile-title">Samsung Galaxy M14 5G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹15,490</span>
+                        <span class="mobile-price">₹10,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('samsung-m14')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 4. POCO M6 Pro 5G -->
+                <div class="mobile-card" data-price="9999">
+                    <a href="https://www.poco.in/product/poco-m6-pro" target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/71RxOp16SQL._SX679_.jpg" alt="POCO M6 Pro 5G" />
+                    </a>
+                    <h3 class="mobile-title">POCO M6 Pro 5G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹12,999</span>
+                        <span class="mobile-price">₹9,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('poco-m6')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 5. iQOO Z9 Lite 5G -->
+                <div class="mobile-card" data-price="10498">
+                    <a href="https://gadgets.beebom.com/best-phones-under-12000" target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/71RMv+bfJnL._SX679_.jpg" alt="iQOO Z9 Lite 5G" />
+                    </a>
+                    <h3 class="mobile-title">iQOO Z9 Lite 5G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹12,999</span>
+                        <span class="mobile-price">₹10,498</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('iqoo-z9')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 6. Realme Narzo 70x 5G -->
+                <div class="mobile-card" data-price="11999">
+                    <a href="https://www.cashify.in/best-mobile-phones-under-12000-rs-in-india" target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/81cGJKLDy9L._SX679_.jpg"
+                            alt="Realme Narzo 70x 5G" />
+                    </a>
+                    <h3 class="mobile-title">Realme Narzo 70x 5G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹14,999</span>
+                        <span class="mobile-price">₹11,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('realme-narzo70x')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 7. Redmi 13C 5G -->
+                <div class="mobile-card" data-price="11999">
+                    <a href="https://www.cashify.in/best-mobile-phones-under-12000-rs-in-india" target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/71d1ytcCntL._SX679_.jpg" alt="Redmi 13C 5G" />
+                    </a>
+                    <h3 class="mobile-title">Redmi 13C 5G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹13,999</span>
+                        <span class="mobile-price">₹11,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('redmi-13c')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 8. Moto G34 5G -->
+                <div class="mobile-card" data-price="11999">
+                    <a href="https://www.motorola.in/smartphones-moto-g34-5g" target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/71xAq-0bIYL._SX679_.jpg" alt="Moto G34 5G" />
+                    </a>
+                    <h3 class="mobile-title">Moto G34 5G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹13,999</span>
+                        <span class="mobile-price">₹11,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('moto-g34')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 9. Samsung Galaxy F15 5G -->
+                <div class="mobile-card" data-price="12599">
+                    <a href="https://gadgets.beebom.com/mobile-list/6000mah-battery-phones-under-15000" target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/81WJm07A0tL._SX679_.jpg"
+                            alt="Samsung Galaxy F15 5G" />
+                    </a>
+                    <h3 class="mobile-title">Samsung Galaxy F15 5G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹15,999</span>
+                        <span class="mobile-price">₹12,599</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('samsung-f15')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 10. Lava Blaze Amoled 2 -->
+                <div class="mobile-card" data-price="11999">
+                    <a href="https://www.youtube.com/watch?v=g558I7MuSQI" target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/71S5+xVqvQL._SX679_.jpg"
+                            alt="Lava Blaze Amoled 2" />
+                    </a>
+                    <h3 class="mobile-title">Lava Blaze Amoled 2</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹13,999</span>
+                        <span class="mobile-price">₹11,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('lava-blaze')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 11. Moto G57 Power -->
+                <div class="mobile-card" data-price="15328">
+                    <a href="https://www.motorola.in/smartphones-moto-g57-power" target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/71a49cULzIL._SX679_.jpg" alt="Moto G57 Power" />
+                    </a>
+                    <h3 class="mobile-title">Moto G57 Power</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹17,999</span>
+                        <span class="mobile-price">₹15,328</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('moto-g57')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 12. Vivo T4x -->
+                <div class="mobile-card" data-price="15460">
+                    <a href="https://www.91mobiles.com/list-of-phones/7000mah-mobile-phones-under-20000"
+                        target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/81iogWYVvBL._SX679_.jpg" alt="Vivo T4x" />
+                    </a>
+                    <h3 class="mobile-title">Vivo T4x</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹17,999</span>
+                        <span class="mobile-price">₹15,460</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('vivo-t4x')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 13. Realme C73 5G -->
+                <div class="mobile-card" data-price="9999">
+                    <a href="https://gadgets.beebom.com/best-phones-under-12000" target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/71vAbaklN+L._SX679_.jpg" alt="Realme C73 5G" />
+                    </a>
+                    <h3 class="mobile-title">Realme C73 5G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹12,999</span>
+                        <span class="mobile-price">₹9,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('realme-c73')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 14. Samsung Galaxy A07 4G -->
+                <div class="mobile-card" data-price="9749">
+                    <a href="https://gadgets.beebom.com/best-phones-under-12000" target="_blank">
+                        <img src="https://images.samsung.com/is/image/samsung/p6pim/in/sm-a047fzbhins/gallery/in-galaxy-a04e-sm-a047-sm-a047fzbhins-534851088"
+                            alt="Samsung Galaxy A07 4G" />
+                    </a>
+                    <h3 class="mobile-title">Samsung Galaxy A07 4G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹11,999</span>
+                        <span class="mobile-price">₹9,749</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('samsung-a07')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 15. Redmi Note 15 (Base) -->
+                <div class="mobile-card" data-price="15999">
+                    <a href="https://www.91mobiles.com/list-of-phones/upcoming-mobiles-in-india" target="_blank">
+                        <img src="https://akm-img-a-in.tosshub.com/indiatoday/images/story/202412/redmi-note-15-series-091530698-16x9_0.jpg"
+                            alt="Redmi Note 15" />
+                    </a>
+                    <h3 class="mobile-title">Redmi Note 15 (Base)</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹17,999</span>
+                        <span class="mobile-price">₹15,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('redmi-note15')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 16. Infinix Hot 60i 5G -->
+                <div class="mobile-card" data-price="9299">
+                    <a href="https://gadgets.beebom.com/best-phones-under-12000" target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/71b6TqVOdML._SX679_.jpg"
+                            alt="Infinix Hot 60i 5G" />
+                    </a>
+                    <h3 class="mobile-title">Infinix Hot 60i 5G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹11,999</span>
+                        <span class="mobile-price">₹9,299</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('infinix-hot60i')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 17. Tecno Pova Slim -->
+                <div class="mobile-card" data-price="19900">
+                    <a href="https://www.91mobiles.com/list-of-phones/top-10-mobiles-below-20000-in-india"
+                        target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/71tPyVfiN4L._SX679_.jpg" alt="Tecno Pova Slim" />
+                    </a>
+                    <h3 class="mobile-title">Tecno Pova Slim</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹22,999</span>
+                        <span class="mobile-price">₹19,900</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('tecno-pova')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 18. Realme 15x 5G -->
+                <div class="mobile-card" data-price="16199">
+                    <a href="https://www.91mobiles.com/list-of-phones/7000mah-mobile-phones-under-20000"
+                        target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/71Rbz8CqUgL._SX679_.jpg" alt="Realme 15x 5G" />
+                    </a>
+                    <h3 class="mobile-title">Realme 15x 5G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹18,999</span>
+                        <span class="mobile-price">₹16,199</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('realme-15x')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 19. OPPO K13 5G -->
+                <div class="mobile-card" data-price="17000">
+                    <a href="https://www.oppo.com/in/" target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/61VbL42BqXL._SX679_.jpg" alt="OPPO K13 5G" />
+                    </a>
+                    <h3 class="mobile-title">OPPO K13 5G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹19,999</span>
+                        <span class="mobile-price">₹17,000</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('oppo-k13')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- 20. Realme Narzo 80x 5G -->
+                <div class="mobile-card" data-price="12930">
+                    <a href="https://gadgets.beebom.com/mobile-list/6000mah-battery-phones-under-15000" target="_blank">
+                        <img src="https://m.media-amazon.com/images/I/71cGJKLDy9L._SX679_.jpg"
+                            alt="Realme Narzo 80x 5G" />
+                    </a>
+                    <h3 class="mobile-title">Realme Narzo 80x 5G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹15,499</span>
+                        <span class="mobile-price">₹12,930</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('realme-narzo80x')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+            <section class="phone30k">
+                <div class="mobile-card">
+                    <img src="https://m.media-amazon.com/images/I/61H72-ADh3L._SX679_.jpg" alt="Realme Narzo 60 Pro" />
+                    <h3 class="mobile-title">Realme Narzo 60 Pro</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹26,999</span>
+                        <span class="mobile-price">₹23,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('realme-narzo60pro')">
+                            More info &nearr;
+                        </button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="mobile-card">
+                    <img src="https://m.media-amazon.com/images/I/61VbL42BqXL._SX679_.jpg" alt="POCO X6 Pro 5G" />
+                    <h3 class="mobile-title">POCO X6 Pro 5G</h3>
+                    <div class="mobile-price-row">
+                        <span class="mobile-mrp">₹28,999</span>
+                        <span class="mobile-price">₹26,999</span>
+                    </div>
+                    <div class="mobile-card-buttons">
+                        <button class="info-btn" onclick="openModal('poco-x6pro')">More info &nearr;</button>
+                        <button class="add-btn">Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+            <section class="phone40k"></section>
+            <section class="phone50k"></section>
+            <section class="phone 50k+"></section>
+
+        </main>
+        <footer></footer>
+    </div>
+
+    <!-- Modal for device details -->
+    <div id="deviceModal" class="modal">
+        <div class="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="modal-device-image">
+                <img id="modalImage" src="" alt="Device Image">
+            </div>
+            <div class="modal-device-details">
+                <h2 id="modalTitle"></h2>
+                <div class="modal-specs">
+                    <div class="spec-group">
+                        <div class="spec-label">Launch Year</div>
+                        <div class="spec-value" id="modalLaunchYear"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Status</div>
+                        <div class="spec-value" id="modalStatus"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Display</div>
+                        <div class="spec-value" id="modalDisplay"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Performance</div>
+                        <div class="spec-value" id="modalPerformance"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Battery</div>
+                        <div class="spec-value" id="modalBattery"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Camera</div>
+                        <div class="spec-value" id="modalCamera"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Connectivity</div>
+                        <div class="spec-value" id="modalConnectivity"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">Price</div>
+                        <div class="spec-value" id="modalPrice"></div>
+                    </div>
+                    <div class="spec-group">
+                        <div class="spec-label">VFM Rating</div>
+                        <div class="spec-value" id="modalVFM"></div>
+                    </div>
+                </div>
+                <div class="modal-justification">
+                    <h3>Category Justification</h3>
+                    <p id="modalJustification"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Optimized Script Loading -->
+    <script src="frontend/js/performance-utils.js"></script>
+    <script defer src="frontend/js/toast-notifications.js"></script>
+    <script defer src="frontend/js/unified-cart.js"></script>
+    <script defer src="frontend/js/global-functionality.js"></script>
+    <script defer src="frontend/js/complete-functionality.js"></script>
+    <script defer src="frontend/js/utilities.js"></script>
+    <script defer src="frontend/js/product-page.js"></script>
+    <script defer src="frontend/js/modal-device-details.js"></script>
+    <script defer src="frontend/js/device-data-extended.js"></script>
+</body>
+
+</html>

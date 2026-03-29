@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - R.M.D.U'S Mobile</title>
+    <link rel="stylesheet" href="frontend/css/style.css">
+    <link rel="stylesheet" href="frontend/css/checkout-page.css">
+    <link rel="stylesheet" href="frontend/css/premium-backgrounds.css">
+    <link rel="stylesheet" href="frontend/css/enhanced-checkout.css">
+    <link rel="stylesheet" href="frontend/css/utilities.css">
+</head>
+
+<body>
+    <!-- Premium Animated Background -->
+    <div class="premium-bg-container checkout-premium-bg">
+        <div class="glass-overlay"></div>
+        <div class="particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+
+    <header class="heading">
+        <nav class="nav">
+            <div class="home">
+                <a href="index.html">&#x2302;</a>
+            </div>
+            <div class="nav-left">
+                Checkout
+            </div>
+            <div class="nav-center">
+                <img class="logo" src="media/logo.png" alt="company logo" style="cursor: pointer;"
+                    onclick="window.location.href='index.html'">
+            </div>
+            <div class="nav-right">
+                <button class="cart">
+                    <a href="cart.html" class="cart-icon">&#128722;</a>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="checkout-layout">
+        <div class="checkout-container">
+            <h1>🛒 Checkout</h1>
+
+            <form id="checkoutForm">
+                <div class="form-section">
+                    <h2>Customer Information</h2>
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" name="name" required placeholder="John Doe">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required placeholder="john@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone *</label>
+                            <input type="tel" id="phone" name="phone" required pattern="[0-9]{10}"
+                                placeholder="9876543210">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Shipping Address</h2>
+                    <div class="form-group">
+                        <label for="address">Street Address *</label>
+                        <textarea id="address" name="address" rows="3" required
+                            placeholder="House No., Street, Area"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City *</label>
+                            <input type="text" id="city" name="city" required placeholder="Mumbai">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State *</label>
+                            <input type="text" id="state" name="state" required placeholder="Maharashtra">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="pincode">Pincode *</label>
+                        <input type="text" id="pincode" name="pincode" required pattern="[0-9]{6}" placeholder="400001">
+                        <small style="color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 6px; display: block;">
+                            Enter pincode to auto-fill city and state
+                        </small>
+                    </div>
+                    <div class="save-address-container">
+                        <input type="checkbox" id="saveAddress" name="save_address" value="1">
+                        <label for="saveAddress">Save this address for future orders</label>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Payment Method</h2>
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="COD" checked>
+                            <div class="payment-card">
+                                <span class="payment-icon">💵</span>
+                                <span class="payment-name">Cash on Delivery</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="UPI">
+                            <div class="payment-card">
+                                <span class="payment-icon">📱</span>
+                                <span class="payment-name">UPI</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="Card">
+                            <div class="payment-card">
+                                <span class="payment-icon">💳</span>
+                                <span class="payment-name">Card</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="NetBanking">
+                            <div class="payment-card">
+                                <span class="payment-icon">🏦</span>
+                                <span class="payment-name">Net Banking</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="checkout-btn">
+                    <span class="btn-icon">🔒</span>
+                    <span class="btn-text">Place Order Securely</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Order Summary Sidebar -->
+        <div class="order-summary">
+            <h2>📦 Order Summary</h2>
+            <div id="orderItems" class="order-items">
+                <div class="loading-summary">Loading your cart...</div>
+            </div>
+            <div class="order-totals">
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">₹0</span>
+                </div>
+                <div class="total-row">
+                    <span>Shipping:</span>
+                    <span id="shipping">FREE</span>
+                </div>
+                <div class="total-row">
+                    <span>Tax (GST 18%):</span>
+                    <span id="tax">₹0</span>
+                </div>
+                <div class="total-row final-total">
+                    <span>Total:</span>
+                    <span id="finalTotal">₹0</span>
+                </div>
+            </div>
+            <div class="trust-badges">
+                <div class="badge">🔒 Secure Checkout</div>
+                <div class="badge">✓ 100% Genuine</div>
+                <div class="badge">📦 Fast Delivery</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backend Integration Scripts -->
+    <script src="frontend/js/api.js"></script>
+    <script src="frontend/js/backend-cart-integration.js"></script>
+    <script src="frontend/js/backend-integration.js"></script>
+
+    <script src="frontend/js/toast-notifications.js"></script>
+    <script src="frontend/js/mini-cart.js"></script>
+    <script src="frontend/js/global-functionality.js"></script>
+    <script src="frontend/js/complete-functionality.js"></script>
+    <script src="frontend/js/checkout-page.js"></script>
+    <script src="frontend/js/enhanced-checkout.js"></script>
+</body>
+
+</html>

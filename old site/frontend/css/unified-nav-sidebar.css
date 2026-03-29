@@ -1,0 +1,168 @@
+/* ==========================================
+   UNIFIED NAVBAR & SIDEBAR DESIGN
+   Based on index page - applies to all category pages
+   ========================================== */
+
+/* Override Theme-Specific Nav & Sidebar Colors */
+/* Navigation Bar - Index Page Style (Gold/Dark) */
+.heading {
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(10px) !important;
+    border-bottom: 2px solid rgba(255, 215, 0, 0.3) !important;
+    box-shadow: none !important;
+}
+
+.heading:hover {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border-bottom-color: rgba(255, 215, 0, 0.5) !important;
+}
+
+/* Navigation Text - Gold */
+.nav-left {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: #ffd700 !important;
+    background-clip: unset !important;
+    filter: none !important;
+    color: #ffd700 !important;
+    font-size: 1.5em !important;
+    font-weight: bold !important;
+}
+
+.nav-left:hover {
+    filter: none !important;
+    color: #ffed4e !important;
+}
+
+/* Home Icon - Gold */
+.home a {
+    color: #ffd700 !important;
+    font-size: 2em !important;
+    text-shadow: none !important;
+    filter: none !important;
+}
+
+.home a:hover {
+    color: #ffed4e !important;
+    transform: scale(1.1) !important;
+}
+
+/* Search Container - Index Style */
+.search-input {
+    border: none !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+}
+
+.search-button {
+    border: none !important;
+    background: transparent !important;
+}
+
+.search-button:hover {
+    background: rgba(255, 215, 0, 0.15) !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
+    transform: scale(1.05) !important;
+}
+
+.search-icon {
+    fill: #ffd700 !important;
+}
+
+.search-container.active .search-button {
+    background: rgba(255, 215, 0, 0.15) !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
+}
+
+/* Cart Icon - Gold */
+.cart {
+    border: 2px solid #ffd700 !important;
+    background: transparent !important;
+    border-radius: 50% !important;
+    width: 50px !important;
+    height: 50px !important;
+}
+
+.cart:hover {
+    background: rgba(255, 215, 0, 0.2) !important;
+    border-color: #ffd700 !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
+    transform: scale(1.1) !important;
+}
+
+.cart-icon {
+    color: #ffd700 !important;
+    filter: none !important;
+}
+
+.cart:hover .cart-icon {
+    color: #ffed4e !important;
+}
+
+/* Sidebar - Index Page Style (Dark Glassmorphic) */
+.sidebar {
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(10px) !important;
+    border-right: 2px solid rgba(255, 215, 0, 0.2) !important;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Sidebar Scrollbar - Gold */
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 215, 0, 0.5) !important;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 215, 0, 0.7) !important;
+}
+
+/* Sidebar Buttons - Index Style */
+.sidebar .icon,
+.sidebar button.icon {
+    border: 2px solid rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #fff !important;
+    transition: all 0.3s ease !important;
+}
+
+.sidebar button.icon:hover,
+.sidebar button.icon:focus {
+    background: rgba(255, 215, 0, 0.2) !important;
+    border-color: #ffd700 !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
+    transform: translateX(10px) scale(1.03) !important;
+    color: #ffd700 !important;
+}
+
+.sidebar button.icon.active {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 215, 0, 0.2) 100%) !important;
+    border-color: #ffd700 !important;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4) !important;
+    color: #ffd700 !important;
+    font-weight: 600 !important;
+}
+
+/* Note: Main title, mobile cards, price badges, and buttons 
+   retain their theme-specific colors from individual theme CSS files.
+   They are not overridden here to maintain unique category identities. */
+
+/* Add responsive improvements */
+@media (max-width: 768px) {
+    .heading {
+        padding: 15px 20px !important;
+    }
+
+    .nav-left {
+        font-size: 1.2em !important;
+    }
+
+    .sidebar {
+        width: 80px !important;
+    }
+
+    .sidebar button.icon {
+        font-size: 0 !important;
+        padding: 14px !important;
+        width: 60px !important;
+    }
+}

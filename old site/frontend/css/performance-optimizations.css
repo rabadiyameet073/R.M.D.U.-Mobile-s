@@ -1,0 +1,247 @@
+/**
+ * Performance Optimizations CSS
+ * GPU-accelerated animations and optimized rendering
+ */
+
+/* ========== GPU Acceleration ========== */
+.gpu-accelerated {
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* ========== Will-Change Optimizations ========== */
+/* Only add will-change to elements that are actively animating */
+.nav,
+.sidebar,
+.custom-cursor,
+.section-indicator {
+    will-change: transform;
+}
+
+.section-video {
+    will-change: auto;
+    /* Videos handle their own optimization */
+}
+
+/* Remove will-change after animation completes */
+.animation-complete {
+    will-change: auto;
+}
+
+/* ========== Layout Containment ========== */
+.full-screen-section {
+    contain: layout style paint;
+}
+
+.section-content {
+    contain: layout style;
+}
+
+.hero-content,
+.problem-content,
+.advantage-content,
+.trust-excellence-content,
+.final-cta-content {
+    contain: layout;
+}
+
+/* Container for isolated rendering */
+.premium-footer {
+    contain: layout style;
+}
+
+/* ========== Optimized Transforms ========== */
+/* Use transforms instead of top/left for better performance */
+.optimized-position {
+    transform: translate3d(0, 0, 0);
+}
+
+/* ========== Smooth Scrolling Optimization ========== */
+.scroll-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+/* Optimize scroll snap */
+@supports (scroll-snap-type: y mandatory) {
+    .scroll-container {
+        scroll-snap-type: y mandatory;
+    }
+
+    .full-screen-section {
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+    }
+}
+
+/* ========== Custom Cursor Optimization ========== */
+.custom-cursor {
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    pointer-events: none;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* ========== Animation Performance ========== */
+/* Optimize frequently animated elements */
+.category-card,
+.solution-card,
+.trust-card-premium,
+.comparison-pill,
+.cta-btn {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+}
+
+/* Reset will-change after hover */
+.category-card:not(:hover),
+.solution-card:not(:hover),
+.trust-card-premium:not(:hover),
+.comparison-pill:not(:hover),
+.cta-btn:not(:hover) {
+    will-change: auto;
+}
+
+/* ========== Reduce Paint Areas ========== */
+/* Isolate elements to their own layers */
+.section-video {
+    isolation: isolate;
+}
+
+.hero-content,
+.sidebar {
+    isolation: isolate;
+}
+
+/* ========== Font Rendering Optimization ========== */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+}
+
+/* Optimize text for performance during animations */
+.animating-text {
+    text-rendering: optimizeSpeed;
+}
+
+/* ========== Image Optimization ========== */
+img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* ========== Reduce Repaints ========== */
+/* Composite only transform and opacity */
+@keyframes optimized-fade {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 20px, 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes optimized-slide {
+    from {
+        transform: translate3d(-100%, 0, 0);
+    }
+
+    to {
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+/* ========== Hardware Acceleration Utilities ========== */
+.hw-accelerate {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+.hw-accelerate-3d {
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+}
+
+/* ========== Optimize Blur Effects ========== */
+/* Reduce backdrop-filter complexity for better performance */
+.optimized-blur {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* ========== Reduce Motion for Accessibility ========== */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ========== Content Visibility ========== */
+/* Use content-visibility for off-screen content */
+.lazy-content {
+    content-visibility: auto;
+    contain-intrinsic-size: 1000px;
+    /* Estimated size */
+}
+
+/* ========== Optimized Shadows ========== */
+/* Use transforms for shadows when possible */
+.optimized-shadow {
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+}
+
+/* ========== Prevent Layout Shift ========== */
+.aspect-ratio-16-9 {
+    aspect-ratio: 16 / 9;
+}
+
+.aspect-ratio-1-1 {
+    aspect-ratio: 1 / 1;
+}
+
+/* ========== Optimize Grid Layouts ========== */
+.optimized-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    will-change: auto;
+    /* Grids don't need will-change */
+}
+
+/* ========== Loading States ========== */
+.loading {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.loaded {
+    animation: optimized-fade 0.3s ease-out;
+}
+
+/* ========== Performance Monitoring ========== */
+/* Visual indicator for slow frames (development only) */
+@media (prefers-reduced-motion: no-preference) {
+    .performance-debug::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 10px;
+        height: 10px;
+        background: lime;
+        z-index: 999999;
+        border-radius: 50%;
+    }
+}

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Form</title>
+    <link rel="stylesheet" href="frontend/css/style.css">
+    <link rel="stylesheet" href="frontend/css/premium-backgrounds.css">
+</head>
+
+<body class="feedback-page-body">
+    <!-- Premium Animated Background -->
+    <div class="premium-bg-container feedback-premium-bg">
+        <div class="glass-overlay"></div>
+        <div class="particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+
+    <div class="feedback-container">
+        <h2 class="feedback-title">⭐ We'd Love Your Feedback!</h2>
+        <p class="feedback-subtitle">Help us improve by sharing your thoughts and experience.</p>
+
+        <form id="feedbackForm" onsubmit="event.preventDefault(); submitFeedback();">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name" class="feedback-label">Name *</label>
+                    <input type="text" id="name" name="name" class="feedback-input" placeholder="Your Name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="feedback-label">Email *</label>
+                    <input type="email" id="email" name="email" class="feedback-input" placeholder="you@example.com"
+                        required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="feedback-label">Overall Experience Rating *</label>
+                <div class="star-rating">
+                    <input type="radio" id="star5" name="rating" value="5" required><label for="star5"
+                        title="5 stars - Excellent">★</label>
+                    <input type="radio" id="star4" name="rating" value="4"><label for="star4"
+                        title="4 stars - Good">★</label>
+                    <input type="radio" id="star3" name="rating" value="3"><label for="star3"
+                        title="3 stars - Average">★</label>
+                    <input type="radio" id="star2" name="rating" value="2"><label for="star2"
+                        title="2 stars - Poor">★</label>
+                    <input type="radio" id="star1" name="rating" value="1"><label for="star1"
+                        title="1 star - Very Poor">★</label>
+                </div>
+                <div id="ratingText" class="rating-text"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="feedback-label">How satisfied are you with... </label>
+                <div class="satisfaction-grid">
+                    <div class="satisfaction-item">
+                        <span>Product Quality</span>
+                        <div class="emoji-rating">
+                            <input type="radio" id="quality1" name="quality" value="5"><label for="quality1">😍</label>
+                            <input type="radio" id="quality2" name="quality" value="4"><label for="quality2">😊</label>
+                            <input type="radio" id="quality3" name="quality" value="3"><label for="quality3">😐</label>
+                            <input type="radio" id="quality4" name="quality" value="2"><label for="quality4">😟</label>
+                            <input type="radio" id="quality5" name="quality" value="1"><label for="quality5">😞</label>
+                        </div>
+                    </div>
+
+                    <div class="satisfaction-item">
+                        <span>Website Usability</span>
+                        <div class="emoji-rating">
+                            <input type="radio" id="usability1" name="usability" value="5"><label
+                                for="usability1">😍</label>
+                            <input type="radio" id="usability2" name="usability" value="4"><label
+                                for="usability2">😊</label>
+                            <input type="radio" id="usability3" name="usability" value="3"><label
+                                for="usability3">😐</label>
+                            <input type="radio" id="usability4" name="usability" value="2"><label
+                                for="usability4">😟</label>
+                            <input type="radio" id="usability5" name="usability" value="1"><label
+                                for="usability5">😞</label>
+                        </div>
+                    </div>
+
+                    <div class="satisfaction-item">
+                        <span>Customer Service</span>
+                        <div class="emoji-rating">
+                            <input type="radio" id="service1" name="service" value="5"><label for="service1">😍</label>
+                            <input type="radio" id="service2" name="service" value="4"><label for="service2">😊</label>
+                            <input type="radio" id="service3" name="service" value="3"><label for="service3">😐</label>
+                            <input type="radio" id="service4" name="service" value="2"><label for="service4">😟</label>
+                            <input type="radio" id="service5" name="service" value="1"><label for="service5">😞</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="category" class="feedback-label">Feedback Category</label>
+                <select id="category" name="category" class="feedback-input">
+                    <option value="general">General Feedback</option>
+                    <option value="product">Product Related</option>
+                    <option value="website">Website Experience</option>
+                    <option value="delivery">Delivery & Service</option>
+                    <option value="suggestion">Suggestions</option>
+                    <option value="complaint">Complaint</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="comments" class="feedback-label">Your Comments *</label>
+                <textarea id="comments" name="comments" rows="6" class="feedback-textarea"
+                    placeholder="Tell us more about your experience, what you liked, or how we can improve..."
+                    required></textarea>
+                <div class="char-counter">
+                    <span id="charCount">0</span>/500 characters
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="feedback-label">Would you recommend us to others?</label>
+                <div class="recommend-options">
+                    <label class="recommend-option">
+                        <input type="radio" name="recommend" value="yes" required>
+                        <div class="option-card">👍 Yes, Definitely!</div>
+                    </label>
+                    <label class="recommend-option">
+                        <input type="radio" name="recommend" value="maybe">
+                        <div class="option-card">🤔 Maybe</div>
+                    </label>
+                    <label class="recommend-option">
+                        <input type="radio" name="recommend" value="no">
+                        <div class="option-card">👎 Not Likely</div>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="feedback-button">
+                <span class="btn-icon">📤</span>
+                <span>Submit Feedback</span>
+            </button>
+        </form>
+
+        <div id="successMessage" class="success-message" style="display: none;">
+            <div class="success-icon">✨</div>
+            <h3>Thank You!</h3>
+            <p>Your feedback has been submitted successfully.</p>
+        </div>
+    </div>
+
+    <script src="frontend/js/toast-notifications.js"></script>
+    <script src="frontend/js/complete-functionality.js"></script>
+    <script src="frontend/js/feedback-page.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!document.querySelector('.feedback-container .home-btn')) {
+                const container = document.querySelector('.feedback-container');
+                if (container) {
+                    const homeBtn = document.createElement('a');
+                    homeBtn.href = '/index.html';
+                    homeBtn.className = 'home-btn';
+                    homeBtn.innerHTML = '← Back to Home';
+                    homeBtn.style.cssText = `
+                        display: inline-block;
+                        margin-bottom: 20px;
+                        color: #4ede9a;
+                        text-decoration: none;
+                        font-weight: 600;
+                        transition: color 0.3s ease;
+                    `;
+                    homeBtn.addEventListener('mouseenter', () => {
+                        homeBtn.style.color = '#3bc985';
+                    });
+                    homeBtn.addEventListener('mouseleave', () => {
+                        homeBtn.style.color = '#4ede9a';
+                    });
+                    container.insertBefore(homeBtn, container.firstChild);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

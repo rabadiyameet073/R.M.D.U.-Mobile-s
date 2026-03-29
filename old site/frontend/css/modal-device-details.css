@@ -1,0 +1,457 @@
+/* ==========================================
+   PREMIUM MODAL STYLES - GLASSMORPHISM DESIGN
+   ========================================== */
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    animation: overlayFadeIn 0.4s ease;
+}
+
+@keyframes overlayFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    position: relative;
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.12) 0%,
+            rgba(255, 255, 255, 0.08) 50%,
+            rgba(255, 255, 255, 0.06) 100%);
+    backdrop-filter: blur(20px) saturate(200%);
+    -webkit-backdrop-filter: blur(20px) saturate(200%);
+    border: 2px solid rgba(255, 255, 255, 0.18);
+    border-radius: 24px;
+    max-width: 950px;
+    max-height: 92vh;
+    width: 92%;
+    overflow: hidden;
+    box-shadow:
+        0 32px 80px rgba(0, 0, 0, 0.5),
+        0 16px 40px rgba(16, 185, 129, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 0;
+    animation: modalSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+}
+
+/* Animated gradient border effect */
+.modal-content::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    padding: 2px;
+    background: linear-gradient(135deg,
+            rgba(16, 185, 129, 0.6),
+            rgba(5, 150, 105, 0.4),
+            rgba(16, 185, 129, 0.6));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    opacity: 0.5;
+    animation: borderGlow 3s ease-in-out infinite;
+}
+
+@keyframes borderGlow {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: scale(0.85) translateY(60px);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Left panel (image) */
+.modal-device-image {
+    background: linear-gradient(180deg,
+            rgba(16, 185, 129, 0.08) 0%,
+            rgba(5, 150, 105, 0.04) 100%);
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle animated background */
+.modal-device-image::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+    animation: bgPulse 8s ease-in-out infinite;
+}
+
+@keyframes bgPulse {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: translate(-10px, -10px) scale(1.1);
+        opacity: 0.5;
+    }
+}
+
+.modal-device-image img {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    border-radius: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.4),
+        0 8px 24px rgba(16, 185, 129, 0.2);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+}
+
+.modal-device-image img:hover {
+    transform: scale(1.03) translateY(-4px);
+    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        0 12px 32px rgba(16, 185, 129, 0.3);
+}
+
+/* Right panel (details) */
+.modal-device-details {
+    padding: 2.5rem;
+    overflow-y: auto;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.02) 100%);
+}
+
+/* Custom Scrollbar */
+.modal-device-details::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-device-details::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.modal-device-details::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.6), rgba(5, 150, 105, 0.6));
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.modal-device-details::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.8), rgba(5, 150, 105, 0.8));
+}
+
+.modal-device-details h2 {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0 0 2rem 0;
+    background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #059669 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 2px 16px rgba(16, 185, 129, 0.5));
+    letter-spacing: -0.5px;
+    position: relative;
+}
+
+.modal-device-details h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, rgba(16, 185, 129, 1), transparent);
+    border-radius: 2px;
+}
+
+.modal-specs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.spec-group {
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.08) 0%,
+            rgba(255, 255, 255, 0.04) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 1.25rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.spec-group::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.6), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.spec-group:hover {
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.12) 0%,
+            rgba(255, 255, 255, 0.08) 100%);
+    border-color: rgba(16, 185, 129, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+}
+
+.spec-group:hover::before {
+    opacity: 1;
+}
+
+.spec-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #10b981;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.spec-label::before {
+    content: '●';
+    color: #10b981;
+    font-size: 8px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.spec-value {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
+    line-height: 1.6;
+}
+
+.modal-justification {
+    background: linear-gradient(135deg,
+            rgba(16, 185, 129, 0.12) 0%,
+            rgba(5, 150, 105, 0.08) 100%);
+    backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(16, 185, 129, 0.3);
+    border-radius: 16px;
+    padding: 1.75rem;
+    margin-top: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-justification::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #10b981, #059669);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+}
+
+.modal-justification h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #10b981;
+    margin: 0 0 1rem 0;
+    text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+.modal-justification p {
+    font-size: 14px;
+    line-height: 1.9;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+}
+
+/* Close Button */
+.modal-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.15));
+    backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(239, 68, 68, 0.4);
+    border-radius: 50%;
+    font-size: 28px;
+    color: #f87171;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    z-index: 10;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
+}
+
+.modal-close:hover {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.35), rgba(220, 38, 38, 0.25));
+    border-color: rgba(239, 68, 68, 0.7);
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5);
+}
+
+.modal-close:active {
+    transform: rotate(90deg) scale(0.95);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .modal-content {
+        grid-template-columns: 320px 1fr;
+    }
+
+    .modal-device-image {
+        padding: 2rem;
+    }
+
+    .modal-device-details {
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        grid-template-columns: 1fr;
+        padding: 0;
+        gap: 0;
+        max-height: 95vh;
+        width: 95%;
+    }
+
+    .modal-device-image {
+        padding: 2rem;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-device-image img {
+        max-width: 280px;
+    }
+
+    .modal-device-details {
+        padding: 2rem;
+    }
+
+    .modal-device-details h2 {
+        font-size: 26px;
+    }
+
+    .modal-specs {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-close {
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+        top: 1rem;
+        right: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-device-image {
+        padding: 1.5rem;
+    }
+
+    .modal-device-details {
+        padding: 1.5rem;
+    }
+
+    .modal-device-details h2 {
+        font-size: 22px;
+    }
+
+    .spec-group {
+        padding: 1rem;
+    }
+}

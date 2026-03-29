@@ -1,0 +1,13 @@
+body[data-page='goat'] {
+  --category-accent: #f4d97c;
+  --category-accent-soft: rgba(244, 217, 124, 0.7);
+  --category-page-bg: #0a0906;
+  --category-nav-bg: linear-gradient(to bottom, rgba(24, 20, 8, 0.9), rgba(12, 10, 5, 0.42));
+  --category-nav-border: rgba(244, 217, 124, 0.28);
+  --category-hero-overlay: linear-gradient(160deg, rgba(24, 21, 9, 0.78) 0%, rgba(13, 10, 6, 0.44) 45%, rgba(10, 8, 4, 0.88) 100%);
+  --category-cta-bg: rgba(255, 255, 255, 0.08);
+  --category-cta-border: rgba(244, 217, 124, 0.34);
+  --category-cta-hover-bg: rgba(244, 217, 124, 0.24);
+  --category-card-border: rgba(244, 217, 124, 0.24);
+  --category-card-bg: linear-gradient(160deg, rgba(244, 217, 124, 0.17) 0%, rgba(255, 255, 255, 0.03) 100%);
+}

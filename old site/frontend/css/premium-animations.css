@@ -1,0 +1,280 @@
+/* ===================================
+   PREMIUM ANIMATIONS CSS
+   Rolls-Royce Inspired Luxury Animations
+   for RMDU Mobile
+   =================================== */
+
+/* ===================================
+   LUXURY EASING CURVES
+   =================================== */
+:root {
+    /* Luxury timing functions for premium feel */
+    --ease-luxury: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-luxury-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-luxury-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-heavy: cubic-bezier(0.7, 0, 0.3, 1);
+    --ease-elegant: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+    /* Animation durations */
+    --duration-fast: 0.3s;
+    --duration-normal: 0.6s;
+    --duration-slow: 0.9s;
+    --duration-slower: 1.2s;
+    --duration-slowest: 1.6s;
+}
+
+/* ===================================
+   FADE ANIMATIONS
+   =================================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(60px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-60px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===================================
+   SLIDE ANIMATIONS
+   =================================== */
+@keyframes slideInUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ===================================
+   SCALE ANIMATIONS
+   =================================== */
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes scaleOut {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    to {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+}
+
+/* ===================================
+   UTILITY CLASSES
+   =================================== */
+
+/* Fade animations */
+.animate-fade-in {
+    animation: fadeIn var(--duration-normal) var(--ease-luxury) forwards;
+}
+
+.animate-fade-out {
+    animation: fadeOut var(--duration-normal) var(--ease-luxury) forwards;
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp var(--duration-slower) var(--ease-luxury) forwards;
+}
+
+.animate-fade-in-down {
+    animation: fadeInDown var(--duration-slower) var(--ease-luxury) forwards;
+}
+
+/* Slide animations */
+.animate-slide-up {
+    animation: slideInUp var(--duration-slower) var(--ease-luxury) forwards;
+}
+
+.animate-slide-down {
+    animation: slideInDown var(--duration-slower) var(--ease-luxury) forwards;
+}
+
+.animate-slide-left {
+    animation: slideInLeft var(--duration-slower) var(--ease-luxury) forwards;
+}
+
+.animate-slide-right {
+    animation: slideInRight var(--duration-slower) var(--ease-luxury) forwards;
+}
+
+/* Scale animations */
+.animate-scale-in {
+    animation: scaleIn var(--duration-slow) var(--ease-luxury) forwards;
+}
+
+/* ===================================
+   STAGGER DELAYS
+   Sequential reveal animations
+   =================================== */
+.stagger-1 {
+    animation-delay: 0.1s;
+}
+
+.stagger-2 {
+    animation-delay: 0.2s;
+}
+
+.stagger-3 {
+    animation-delay: 0.3s;
+}
+
+.stagger-4 {
+    animation-delay: 0.4s;
+}
+
+.stagger-5 {
+    animation-delay: 0.5s;
+}
+
+.stagger-6 {
+    animation-delay: 0.6s;
+}
+
+/* ===================================
+   PERFORMANCE OPTIMIZATIONS
+   =================================== */
+.gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    will-change: transform, opacity;
+}
+
+/* Remove will-change after animation completes */
+.animation-complete {
+    will-change: auto;
+}
+
+/* ===================================
+   REDUCED MOTION SUPPORT
+   =================================== */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ===================================
+   SCROLL-TRIGGERED ANIMATIONS
+   Applied via JavaScript Intersection Observer
+   =================================== */
+.scroll-reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity var(--duration-slower) var(--ease-luxury),
+        transform var(--duration-slower) var(--ease-luxury);
+}
+
+.scroll-reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ===================================
+   PARALLAX EFFECT
+   =================================== */
+.parallax-slow {
+    transition: transform 0.5s var(--ease-luxury);
+}
+
+.parallax-medium {
+    transition: transform 0.3s var(--ease-luxury);
+}
+
+.parallax-fast {
+    transition: transform 0.15s var(--ease-luxury);
+}
