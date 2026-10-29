@@ -1,0 +1,560 @@
+{
+  "project": "rmdu-mobiles-platform",
+  "tracker_version": 1,
+  "source_of_truth": {
+    "code": "frontend/src",
+    "backend": "backend",
+    "database": "database",
+    "tokens": "frontend/src/styles/global.css",
+    "skill-index": "instruction/state of agent/skills",
+    "reference": "Apple / GSMArena / Linear / Stripe Caliber Device Recommendation Architecture"
+  },
+  "_demo": "RMDU Mobiles Smartphone Recommendation Platform active track.",
+  "summary": {
+    "total": 26,
+    "done": 22,
+    "in_progress": 3,
+    "backlog": 1
+  },
+  "session": {
+    "branch": "main",
+    "tip": "6e56284",
+    "unpushed": [
+      "initial-react-architecture",
+      "uncommitted-backend"
+    ],
+    "next_up": "Migration 08 is written and the backend already answers 503 migration_required for its four RPCs; paste database/08_atomic_counters_votes_and_dense_ranks.sql into the Supabase SQL editor, run apply_sql.py --check, then re-run qa_admin_flow.py to exercise PUT /admin/categories/{id}/order and DELETE /admin/categories/{id}/devices/{device_id} against real RPCs instead of the degraded path",
+    "pending_verifications": [
+      "Migration 08 is NOT applied to the live project yet; every caller of fn_increment_card_view, fn_vote_review_helpful, fn_remove_category_member and fn_rerank_category_batch answers 503 migration_required until it is",
+      "Migrations 06 and 07 are applied: qa_admin_flow.py exercises the shift trigger and fn_rerank_device and passes 23/23 on the current tree",
+      "smoke_test.py passes 27/27 with the admin surface enabled (ADMIN_API_KEY set) and 94 routes are registered; scripts/qa_admin_flow.py passes 23/23",
+      "The batch-reorder and member-removal routes were only proven on the degraded path (503 naming database/08_atomic_counters_votes_and_dense_ranks.sql); their success path has never run",
+      "The .env DATABASE_URL/DATABASE_POOLED_URL pair is stale: the direct host has no DNS record and the pooler password is rejected, so apply_sql.py cannot connect until that is refreshed",
+      "Backend, migrations 07 and 08 (plus rollbacks), routers/admin_content.py, services/concurrency.py, scripts/gen_db_reference.py and the rewritten DYNAMIC_DATABASE_API_REFERENCE.md are uncommitted; stage them with tasks.json in one commit",
+      "Catalog is still empty (0 devices, 0 brands, 5 categories): seed 05 cannot run because it targets brands.slug, a column the live schema does not have",
+      "AI endpoints answer in keyword/template mode until a real OPENAI_API_KEY is configured"
+    ],
+    "last_updated": "2026-10-29",
+    "updated_by": "Meet Rabadiya"
+  },
+  "workflow": {
+    "how_to_close_a_task": "gates green → status done + log commit + design_match + verified + finished → recompute summary → refresh session → commit code + tracker together",
+    "validation": "JSON parses; ids unique; parent ids exist; summary counts match tasks array; done implies log + verified"
+  },
+  "tasks": [
+    {
+      "id": "RMDU-CORE-001",
+      "title": "Establish Enterprise Obsidian Dark Palette, Category Tokens & Typography Scale",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-18",
+      "finished": "2026-10-18",
+      "log": "main:8f12a34",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "Established obsidian background (#08080A), slate card surfaces (#0F0F14), and category semantic tokens",
+        "Configured Plus Jakarta Sans / Outfit geometric sans headings with Inter body",
+        "Applied hairline 1px border system (rgba(255,255,255,0.07)) with subtle backdrop blur",
+        "Mapped semantic accents: emerald (Budget), cyan (Gaming), amber (Camera), purple (Battery), gold (G.O.A.T)"
+      ]
+    },
+    {
+      "id": "RMDU-CORE-002",
+      "title": "Implement Glassmorphic Header with Category Navigation & Comparison Counter",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-18",
+      "finished": "2026-10-18",
+      "log": "main:5a34e12",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "Created sticky top navigation with backdrop-blur-xl and hairline bottom border",
+        "Integrated dynamic comparison badge pill showing pinned phone count",
+        "Added touch-friendly mobile menu drawer with smooth exit transitions",
+        "Implemented focus trap and Escape key listener for accessible navigation"
+      ]
+    },
+    {
+      "id": "RMDU-CAT-001",
+      "title": "Implement 5-Category Smartphone Taxonomy Views with Video Backgrounds",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-19",
+      "finished": "2026-10-19",
+      "log": "main:2c89d71",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "Configured category view routing for /budget-killer, /gaming-guru, /camera-champ, /battery-boss, and /goat",
+        "Attached high-impact cinematic loop videos with automatic intersection pause optimization",
+        "Rendered tailored value propositions, key metrics, and category highlights"
+      ]
+    },
+    {
+      "id": "RMDU-FILTER-001",
+      "title": "Interactive Budget Range Filtering & Brand Selector Bar",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-19",
+      "finished": "2026-10-19",
+      "log": "main:7b41e90",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "Engineered non-blocking budget slider using React 18 useTransition for 60 FPS thumb fluidity",
+        "Integrated brand filter pills (Samsung, Apple, OnePlus, iQOO, Xiaomi, Pixel)",
+        "Added currency switcher supporting Indian Rupee (₹) and US Dollar ($)"
+      ]
+    },
+    {
+      "id": "RMDU-CARD-001",
+      "title": "Smartphone Hardware Specification Card with Benchmark Rating Badges",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-19",
+      "finished": "2026-10-19",
+      "log": "main:1d90c33",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "Rendered crisp hardware chips for Chipset, Display Hz, Camera sensor, and Battery mAh",
+        "Applied non-displacing hover glow matching category accent colors",
+        "Integrated comparison checkbox allowing instant device pinning",
+        "Formatted prices with integer currency utilities"
+      ]
+    },
+    {
+      "id": "RMDU-COMPARE-001",
+      "title": "Side-by-Side Comparison Tray & Slide-Up Sheet",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-20",
+      "finished": "2026-10-20",
+      "log": "main:4f20a55",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "Implemented fixed bottom tray displaying thumbnails of up to 4 selected phones",
+        "Created comparison drawer with backdrop blur and smooth slide transition",
+        "Added 'Clear All' and 'Highlight Differences' toggle controls"
+      ]
+    },
+    {
+      "id": "RMDU-MODAL-001",
+      "title": "Detailed Hardware Specification Modal with Hardware Radar",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-20",
+      "finished": "2026-10-20",
+      "log": "main:6e11b88",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "Engineered modal dialog with full specs breakdown and pros/cons summary",
+        "Integrated animated category benchmark progress bars (1 to 10 scale)",
+        "Implemented Escape key dismissal, focus trap, and body scroll lock"
+      ]
+    },
+    {
+      "id": "RMDU-SEO-001",
+      "title": "React SPA Technical SEO Setup with Dynamic Head & Schema.org JSON-LD",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-20",
+      "finished": "2026-10-20",
+      "log": "main:9a77c44",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "Implemented fitTitle() algorithm keeping titles strictly within 50-60 characters",
+        "Engineered useDocumentHead() custom hook dynamically setting canonical, meta description, and OG tags",
+        "Created XSS-safe JsonLd component with \\u003c script escaping for Product and ItemList schemas"
+      ]
+    },
+    {
+      "id": "RMDU-QUIZ-001",
+      "title": "3-Step AI Smartphone Recommendation Diagnostic Quiz",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-20",
+      "finished": "2026-10-20",
+      "log": "main:3b55d99",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "Built diagnostic questionnaire: Primary Intent → Budget Comfort → Non-Negotiable Hardware Priority",
+        "Integrated compatibility algorithm presenting Top 2 matched devices with percentage score",
+        "Added transparent disclosures on trade-offs and alternative recommendations"
+      ]
+    },
+    {
+      "id": "RMDU-INT-001",
+      "title": "End-to-End Verification of Comparison Drawer & Difference Highlighter",
+      "status": "backlog",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-20",
+      "finished": null,
+      "log": null,
+      "design_match": null,
+      "verified": false,
+      "pushed": false,
+      "key_decisions": [
+        "Auditing sticky header alignment on multi-phone comparison across mobile, tablet, and desktop",
+        "Verifying contrast ratio on difference-dimmed spec cells"
+      ]
+    },
+    {
+      "id": "RMDU-API-001",
+      "title": "Audit Live Supabase Schema and Define the Backend API Contract",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-28",
+      "finished": "2026-10-28",
+      "log": "uncommitted",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "Introspected all 24 live tables through PostgREST: catalog, users, reviews, recommendations, comparison, AI sessions and audit",
+        "Services reach the database over PostgREST with the server-only secret key; user tokens are validated through GoTrue /auth/v1/user",
+        "User-scoped rows always carry user_id=eq.<token sub> so RLS intent is preserved without a psql connection",
+        "Every failure path returns the same envelope: {error:{code,message,details}}"
+      ],
+      "follow_ups": [
+        "Commit pending: backend/ has never been committed to git"
+      ]
+    },
+    {
+      "id": "RMDU-API-002",
+      "title": "Build FastAPI Gateway Core: Config, PostgREST Client, Errors, Auth Dependencies",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-28",
+      "finished": "2026-10-28",
+      "log": "uncommitted",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "SupabaseGateway exposes select/select_one/insert/update/delete/rpc with parameterized PostgREST filters only, never concatenated SQL",
+        "A non-browser User-Agent is mandatory because new Supabase secret keys reject browser-like clients",
+        "The admin surface stays disabled unless ADMIN_API_KEY is set, and keys are compared with secrets.compare_digest",
+        "DataAccessError maps upstream 401/403 to 502 so leaked upstream codes never confuse API clients"
+      ]
+    },
+    {
+      "id": "RMDU-API-003",
+      "title": "Public Catalog API: Devices, Brands, Categories, Filters and Dynamic Ranking",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-28",
+      "finished": "2026-10-28",
+      "log": "uncommitted",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "Device payloads are normalised once in catalog_service so search, lists, details, compare and AI return identical shapes",
+        "Filters cover search, brand, category, price range, 5G, NFC, RAM, battery, refresh rate and featured, with exact totals from Content-Range",
+        "Category ranking reads vw_category_device_ranks and switches between manual and auto order without extra tables",
+        "Brand lookup resolves a UUID, exact name or slugified name because brands has no slug column in the live schema"
+      ]
+    },
+    {
+      "id": "RMDU-API-004",
+      "title": "Database-Driven Recommendation Engine and Comparison Matrix API",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-28",
+      "finished": "2026-10-28",
+      "log": "uncommitted",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "Weights come from recommendation_rules at request time and blend 75/25 across primary and secondary priorities",
+        "Each result returns a reason, seven weighted contributions and explicit penalties for budget overshoot and slow charging",
+        "Comparison builds a 46-row matrix with per-row winners, a weighted scoreboard and a verdict, then persists the session",
+        "Persisting recommendations requires a verified access token; the row is always written against the token subject"
+      ]
+    },
+    {
+      "id": "RMDU-API-005",
+      "title": "Grounded AI Search and Chat Endpoints with RAG and Deterministic Fallback",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-28",
+      "finished": "2026-10-28",
+      "log": "uncommitted",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "Retrieval works with or without embeddings: pgvector cosine similarity when vectors exist, keyword plus score ordering otherwise",
+        "Answers are grounded in retrieved devices and knowledge chunks and cite them as sources",
+        "Chat sessions work anonymously through session_token and become locked to the owner once a user token is presented",
+        "Retrieval runs before the user message is persisted so a failed turn never leaves half-written history"
+      ]
+    },
+    {
+      "id": "RMDU-API-006",
+      "title": "Authenticated /me Surface: Profile, History, Alerts, Reviews, Cards, Recommendations",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-28",
+      "finished": "2026-10-28",
+      "log": "uncommitted",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "ensure_user upserts the users row and profile from the GoTrue identity and returns 409 account_link_conflict on email collisions",
+        "Every /me query is filtered by the token subject on the server; a client-supplied user_id is never trusted",
+        "Price alerts upsert on (user_id, device_id) and shopkeeper cards take their short code from the DB trigger",
+        "The activity feed merges history, reviews, alerts, cards and recommendations into one chronological payload"
+      ]
+    },
+    {
+      "id": "RMDU-API-007",
+      "title": "Admin API with Audit Logging, Rule Governance and Soft Delete",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-28",
+      "finished": "2026-10-28",
+      "log": "uncommitted",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "The whole /admin router is gated by X-Admin-Key and answers 503 admin_disabled when no key is configured",
+        "Device create/update writes specs, scores and categories plus an audit_log entry, leaving overall_score to the DB trigger",
+        "Deletes are soft (is_active=false) so historical reviews, alerts and comparisons stay valid",
+        "Rule upserts reject payloads whose seven weights do not sum to 1.00 before recommendation_rules is touched"
+      ]
+    },
+    {
+      "id": "RMDU-CORE-003",
+      "title": "End-to-End Verification of the Backend Against Live Supabase",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-28",
+      "finished": "2026-10-28",
+      "log": "uncommitted",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "scripts/smoke_test.py asserts 27 checks: health, OpenAPI, catalog, filters, 404 envelope, recommendations, validation, auth gates, AI query and chat lifecycle",
+        "scripts/qa_admin_flow.py creates throwaway admin data, asserts trigger-computed scores, rankings, recommendation order, comparison winner and soft delete, then proves no rows were left behind",
+        "Both suites pass against the live project (27/27 and 23/23) and the database was returned to its empty baseline afterwards"
+      ],
+      "follow_ups": [
+        "Re-run both suites once the catalog is seeded so filters and rankings are exercised on real rows"
+      ]
+    },
+    {
+      "id": "RMDU-DB-001",
+      "title": "Repair Recursive Category Rank Trigger (Migration 06)",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-28",
+      "finished": "2026-10-29",
+      "log": "uncommitted",
+      "design_match": null,
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "Root cause confirmed on the live database: fn_shift_category_ranks re-fires on its own sibling updates and aborts with stack depth limit exceeded (54001)",
+        "database/06_fix_category_rank_trigger.sql adds the pg_trigger_depth() guard and ships a matching rollback",
+        "Migration 06 is applied to the live project: qa_admin_flow.py moves a device to rank 1 and observes the sibling shifted to rank 2, which is only possible when the guard is in place",
+        "Migration 08 later replaced the same function to add DELETE compaction and the transaction-local batch switch, so the guard now lives in the 08 definition"
+      ],
+      "follow_ups": [
+        "Reconcile seed 05 first: it inserts brands.slug, a column the live schema does not have",
+        "After applying migration 08, confirm with python scripts/apply_sql.py --check that both the guard and the batch switch are present on the deployed function"
+      ]
+    },
+    {
+      "id": "RMDU-DB-002",
+      "title": "Atomic Counters, Vote Uniqueness and Dense-Rank Maintenance (Migration 08)",
+      "status": "in_progress",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-29",
+      "finished": null,
+      "log": "uncommitted",
+      "design_match": null,
+      "verified": false,
+      "pushed": false,
+      "key_decisions": [
+        "fn_increment_card_view replaces the read-modify-write in retail.py, so two concurrent views cannot lose a count",
+        "review_votes with UNIQUE (review_id, voter_id) makes a helpful vote idempotent; fn_vote_review_helpful returns ok or duplicate and never double-counts",
+        "fn_sync_review_helpful_votes adjusts reviews.helpful_votes by +1/-1 with GREATEST(...,0) so legacy counts imported before the table existed are preserved instead of recomputed away",
+        "fn_shift_category_ranks gained two modes in the same replacement: DELETE compaction (the migration-06 version had no DELETE branch), and suppression through set_config('rmdu.rank_shift','off',true) for batch writes",
+        "fn_rerank_category_batch and fn_remove_category_member take a namespaced advisory lock, then FOR NO KEY UPDATE on the category, then check expected_version, then touch children",
+        "Expected outcomes return as JSONB status; contract violations raise PT404/PT422 so PostgREST maps them to HTTP before the route sees them"
+      ],
+      "follow_ups": [
+        "The migration is written but NOT applied: .env's DATABASE_URL has no DNS record and DATABASE_POOLED_URL's password is rejected, so it must be pasted into the Supabase SQL editor",
+        "Until it is applied, the four RPCs answer 503 migration_required (backend/services/concurrency.py) naming this file",
+        "The trigger function now owns three behaviours; rollbacks/08_rollback.sql restores the migration-06 definition and warns that holes in rank are then possible"
+      ]
+    },
+    {
+      "id": "RMDU-API-008",
+      "title": "Curated-Content and User Administration Surface",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-29",
+      "finished": "2026-10-29",
+      "log": "uncommitted",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "routers/admin_content.py owns categories, specs, pros/cons, features, USSD codes and user administration, leaving admin.py to devices, brands, rules, ranking and stats",
+        "Every mutation reuses the shared WRITE dependency pair (require_admin_write + ADMIN_MUTATION), so a write budget and the audit hook cannot be forgotten on a new route",
+        "Pros/cons, features and tips are replaced by converging (insert, update, delete-stale) instead of delete-then-insert: a partial failure can only leave extra rows, never an empty list",
+        "Category deletion is a soft deactivate, not a cascade, because device_categories and the curated homepage would lose rows silently",
+        "Promoting or deactivating the last active admin is refused with 409 last_admin rather than locking every operator out",
+        "Brand and review deletion were added to admin.py: brand delete deactivates (devices.brand_id restricts deletion) and review delete audits before removing the row"
+      ],
+      "follow_ups": [
+        "The admin surface answers 503 admin_disabled until ADMIN_API_KEY is set; the smoke test accepts 401 or 503 for that reason",
+        "GET /admin/users reads public.users only; it never lists auth.users, so deactivated accounts still exist in GoTrue"
+      ]
+    },
+    {
+      "id": "RMDU-API-009",
+      "title": "Edge Reliability Core: Request IDs, Cache Tiers, Budgets, Idempotency Replay, Kill Switches",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-29",
+      "finished": "2026-10-29",
+      "log": "uncommitted",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "core/middleware.py is one pure-ASGI stack: request id echo/generation, error envelope, cache tier (no-store for cards and health, private no-store for me|admin|ai), access logging",
+        "Idempotency-Key replays the first stored response through fn_begin_idempotent/fn_complete_idempotent; it is optional unless the path is listed in IDEMPOTENCY_REQUIRED_PATHS",
+        "core/ratelimit.py budgets are per-actor fixed windows and are never the correctness control: a limiter failure must not deny a legitimate write",
+        "Kill switches gate the promise-making mutation (create card, review, price alert) and never the read of rows that already exist, so stored content and shared links survive a degradation",
+        "Features are advertised in GET /api/v1/meta and GET /health/ready so the SPA hides a surface instead of discovering it via 503",
+        "/health/ready is registered on both the bare and prefixed paths and reports database + features + detail"
+      ],
+      "follow_ups": [
+        "The limiter is in-process, so N workers means N times the budget; replace with a shared store before horizontal scaling",
+        "Idempotency requires migration 07's tables; without them the middleware fails open"
+      ]
+    },
+    {
+      "id": "RMDU-API-010",
+      "title": "Wire Retail, Votes and Rank Writes to the Atomic RPCs",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-29",
+      "finished": "2026-10-29",
+      "log": "uncommitted",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "services/concurrency.py is the single place that turns deployment facts and ranking outcomes into HTTP: call_rpc, interpret_rank, is_missing_function",
+        "A missing migration answers 503 migration_required naming the file, so an unapplied migration never reads as 'card not found'",
+        "retail.py now fails closed on an unparseable expiry date and prefers the server-supplied is_expired, removing the fail-open parse",
+        "Marking a review helpful is now authenticated and rate limited; it was an anonymous unauthenticated counter before",
+        "admin.py's category placement path calls fn_rerank_device through call_rpc, so the audit row and the version bump stay inside the ranking transaction"
+      ],
+      "follow_ups": [
+        "The success path of fn_vote_review_helpful, fn_remove_category_member and fn_rerank_category_batch has not run against live data yet",
+        "PUT /admin/devices/{id}/categories still issues one RPC per category, so a 409 on the second leaves the first applied"
+      ]
+    },
+    {
+      "id": "RMDU-SYS-001",
+      "title": "Document Database-Specific System Design, Concurrency and Reliability Rules",
+      "status": "in_progress",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-28",
+      "finished": null,
+      "log": null,
+      "design_match": null,
+      "verified": false,
+      "pushed": false,
+      "key_decisions": [
+        "Documentation-only scope: create Module 10 under instruction/technical-architecture and link it from the instruction index and agent entrypoint",
+        "Map all 24 current tables to ownership, consistency, lifecycle and failure-handling rules; label proposed schema extensions explicitly",
+        "Specify atomic RPCs, idempotency, controlled retries, availability SLOs, backups and recovery without claiming they are already implemented",
+        "Pause unrelated comparison UI verification while this documentation task is active"
+      ],
+      "follow_ups": [
+        "Do not change backend behavior, apply migrations, seed data, or run mutating live tests for this documentation request",
+        "Formal tracker closure requires an authorized commit; never substitute an invented commit hash"
+      ]
+    },
+    {
+      "id": "RMDU-SYS-002",
+      "title": "Author the System Design Rule Set (Modules 11-12 and Rule 06)",
+      "status": "in_progress",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-28",
+      "finished": null,
+      "log": null,
+      "design_match": null,
+      "verified": false,
+      "pushed": false,
+      "key_decisions": [
+        "Module 11 covers concurrency, isolation and integrity, availability behavior, expiring holds and load budgets, and defers infrastructure provisioning to Module 10",
+        "The train-ticket hold model is translated to RMDU: stock, category rank positions, recommendation generations and card codes are slots; comparison and cart are explicitly not scarce",
+        "Module 12 adds the implementation mechanics: lock-strategy selector, transaction-scoped advisory locks, per-workflow race library, session timeout matrix, Idempotency-Key contract, conflict UX, lock-failure fallback and deadlock monitoring",
+        "rules/06-claim-integrity.md makes atomic claims and honest availability inviolable, using the existing Protocol / Good-Bad / Enforcement format",
+        "Documentation-only scope: no backend behavior, migration, seed data or live-database mutation"
+      ],
+      "follow_ups": [
+        "Implement resource_holds plus claim/confirm RPCs only after the database governance gate authorizes checkout scope",
+        "RESOLVED by RMDU-API-010: the admin ranking path calls fn_rerank_device through services/concurrency.py, so the audit row and version bump share the ranking transaction",
+        "RESOLVED by RMDU-API-010: retail.py increments view_count through fn_increment_card_view and fails closed on an unparseable expiry",
+        "The batch counterpart the module promised now exists for categories (fn_rerank_category_batch, migration 08) but not for multi-category device placement"
+      ]
+    },
+    {
+      "id": "RMDU-SYS-003",
+      "title": "Implement Concurrency Primitives (migration 07, rank RPC, holds, idempotency)",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-28",
+      "finished": "2026-10-29",
+      "log": "Migration 06 was already applied; 07's first apply was rolled back by SQLSTATE 42601 because fn_sweep_concurrency_state declared a bare data-modifying CTE as LANGUAGE plpgsql. Fixed to LANGUAGE sql and re-applied. qa_concurrency.py then passed 44/44 and smoke_test.py 27/27 against the live project.",
+      "design_match": null,
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "version lives on devices, user_profiles, recommendation_rules and categories only; device_categories is ordered by the RPC and needs no revision of its own",
+        "fn_rerank_device returns ok | version_conflict | busy instead of raising, so the API owns HTTP mapping; a no-op placement does not burn a revision",
+        "resource_holds keys the holder as namespaced TEXT (user:/guest:/job:) instead of an FK, so any actor can claim; the live unique index covers held AND confirmed so a sale in progress keeps the slot",
+        "claim/confirm/release/status RPCs return a status object and never leak the holder; business denials are statuses while misuse raises PT404/PT422",
+        "idempotency_requests stores the first result per (actor_scope, operation, key) and replays it; a failed attempt may be retried with the same key",
+        "The admin ranking path now calls the RPC and its audit row is written inside the ranking transaction instead of after it",
+        "Device and profile PATCH accept an optional version precondition and answer 409 version_conflict instead of silently overwriting"
+      ],
+      "follow_ups": [
+        "Migration 06 and 07 are applied to the live project, not staging; the QA matrix ran against live, so a staging re-run is still the belt-and-braces check",
+        "PUT /admin/devices/{id}/categories still issues one RPC per category, so a 409 on the second category leaves the first applied; add a batch RPC before the admin UI edits several categories in one form",
+        "Wire idempotency_requests into mutating endpoints when the first retry-sensitive write (checkout or hold claim) ships",
+        "Schedule fn_sweep_concurrency_state via pg_cron or the deployment scheduler",
+        "RESOLVED by RMDU-API-010: retail.py now calls fn_increment_card_view and fails closed on the expiry parse"
+      ]
+    }
+  ]
+}
