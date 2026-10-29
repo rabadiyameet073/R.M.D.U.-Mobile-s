@@ -16,6 +16,7 @@ import OverviewSection from './sections/Overview';
 import ProductsSection from './sections/Products';
 import DeviceEditor from './sections/DeviceEditor';
 import CategoriesSection from './sections/Categories';
+import SiteContentSection from './sections/SiteContent';
 import BrandsSection from './sections/Brands';
 import ReviewsSection from './sections/Reviews';
 import RulesSection from './sections/Rules';
@@ -27,6 +28,7 @@ const NAV = [
   { id: 'overview', label: 'Overview', hint: 'Catalog health' },
   { id: 'products', label: 'Products', hint: 'Create, edit, publish' },
   { id: 'categories', label: 'Categories', hint: 'Ordering and ranks' },
+  { id: 'content', label: 'Site content', hint: 'Hero, nav, footer copy' },
   { id: 'brands', label: 'Brands', hint: 'Manufacturers' },
   { id: 'reviews', label: 'Reviews', hint: 'Moderation queue' },
   { id: 'rules', label: 'Scoring rules', hint: 'Recommendation weights' },
@@ -236,6 +238,7 @@ export default function AdminApp() {
         {section === 'categories' ? (
           <CategoriesSection navigate={navigate} notify={notify} refreshStats={refreshStats} />
         ) : null}
+        {section === 'content' ? <SiteContentSection notify={notify} /> : null}
         {section === 'brands' ? <BrandsSection notify={notify} refreshStats={refreshStats} /> : null}
         {section === 'reviews' ? <ReviewsSection notify={notify} /> : null}
         {section === 'rules' ? <RulesSection notify={notify} /> : null}

@@ -18,10 +18,13 @@ html:has(body[data-page='admin']) {
   --adm-radius: 10px;
   --adm-surface: #0a0a0a;
   --adm-surface-2: #111111;
+  --adm-surface-3: #0b0b0b;
   --adm-line: rgba(255, 255, 255, 0.1);
   --adm-ok: #3ecf8e;
   --adm-bad: #ff6b6b;
   --adm-warn: #e8b84b;
+  --adm-ink: #000000;
+  --adm-on: #ffffff;
 
   display: grid;
   grid-template-columns: 248px minmax(0, 1fr);
@@ -511,7 +514,7 @@ code {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--adm-on);
   transition: transform var(--transition-fast, 0.2s);
 }
 
@@ -609,12 +612,12 @@ code {
 
 .adm-btn--solid {
   background: var(--accent);
-  color: #000;
+  color: var(--adm-ink);
   font-weight: 500;
 }
 
 .adm-btn--solid:hover:not(:disabled) {
-  background: var(--accent-light, #dcc08a);
+  background: var(--accent-light);
 }
 
 .adm-btn--ghost {
@@ -1158,7 +1161,7 @@ code {
   flex-direction: column;
   border: 1px solid var(--adm-line);
   border-radius: 12px;
-  background: #0b0b0b;
+  background: var(--adm-surface-3);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
 }
 

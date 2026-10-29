@@ -125,13 +125,12 @@ let schemasPromise = null;
 /**
  * Load the live OpenAPI component schemas once; forms are generated from them.
  *
- * The document lives at the server root (`/openapi.json`), not under the versioned
- * prefix, so the suffix is stripped before the request.
+ * The document is served under the versioned prefix the client already knows,
+ * so forms always describe the exact API they call.
  */
 export function loadSchemas() {
   if (!schemasPromise) {
-    const root = API_BASE.replace(/\/api\/v\d+$/, '');
-    schemasPromise = fetch(`${root}/openapi.json`, { headers: { Accept: 'application/json' } })
+    schemasPromise = fetch(`${API_BASE}/openapi.json`, { headers: { Accept: 'application/json' } })
       .then((response) => (response.ok ? response.json() : null))
       .then((doc) => doc?.components?.schemas || {})
       .catch(() => ({}));

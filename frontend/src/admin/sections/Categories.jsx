@@ -28,12 +28,20 @@ import {
   useApi,
 } from '../ui';
 
+// Mirrors `--accent` in styles/global.css: a new category needs a colour before it
+// has one, and the storefront accent is the least surprising default.
+const DEFAULT_COLOR = '#c9a96e';
+
 const BLANK = {
   name: '',
   slug: '',
   description: '',
+  subtitle: '',
+  highlights: [],
+  hero_video_url: '',
+  cover_image_url: '',
   icon: '',
-  color_hex: '#c9a96e',
+  color_hex: DEFAULT_COLOR,
   display_order: 0,
   is_active: true,
 };
@@ -53,8 +61,14 @@ export default function CategoriesSection({ notify, refreshStats }) {
       name: category.name,
       slug: category.slug,
       description: category.description || '',
+      subtitle: category.subtitle || '',
+      // Kept as an array and edited as one line per chip, which is how the
+      // validator stores it (`highlights` is a jsonb array in the database).
+      highlights: category.highlights || [],
+      hero_video_url: category.hero_video_url || '',
+      cover_image_url: category.cover_image_url || '',
       icon: category.icon || '',
-      color_hex: category.color_hex || '#c9a96e',
+      color_hex: category.color_hex || DEFAULT_COLOR,
       display_order: category.display_order ?? 0,
       is_active: Boolean(category.is_active),
     });
@@ -68,6 +82,10 @@ export default function CategoriesSection({ notify, refreshStats }) {
       name: editing.name.trim(),
       slug: editing.slug.trim() || null,
       description: editing.description.trim() || null,
+      subtitle: editing.subtitle.trim() || null,
+      highlights: editing.highlights.map((item) => item.trim()).filter(Boolean),
+      hero_video_url: editing.hero_video_url.trim() || null,
+      cover_image_url: editing.cover_image_url.trim() || null,
       icon: editing.icon.trim() || null,
       color_hex: editing.color_hex.trim() || null,
       display_order: Number(editing.display_order) || 0,
@@ -114,11 +132,17 @@ export default function CategoriesSection({ notify, refreshStats }) {
   const openMembers = async (category) => {
     setMembers({ category, loading: true, rows: [] });
     try {
-      const detail = await api(`/categories/${category.slug}`);
+      /* The admin projection returns every member (up to 200), not the 12 the
+       * public page ships: reordering a truncated list would silently drop the
+       * rows that were not on screen. */
+      const page = await api(`/admin/categories/${category.id}/devices`, {
+        admin: true,
+        params: { page_size: 200 },
+      });
       setMembers({
         category,
         loading: false,
-        rows: detail.devices.map((item) => ({
+        rows: page.items.map((item) => ({
           device_id: item.device.id,
           name: item.device.name,
           price: item.device.price,
@@ -321,6 +345,41 @@ export default function CategoriesSection({ notify, refreshStats }) {
                 onChange={(value) => setEditing({ ...editing, description: value })}
                 rows={3}
                 maxLength={2000}
+              />
+            </Field>
+            {/* Storefront copy (migration 09). These are the fields the public
+                tile and hero read, so an edit here is live on the site. */}
+            <Field label="Subtitle" span={2} hint="One line printed under the tile title.">
+              <TextInput
+                value={editing.subtitle}
+                onChange={(value) => setEditing({ ...editing, subtitle: value })}
+                maxLength={160}
+                placeholder="High FPS consistency and low-latency touch."
+              />
+            </Field>
+            <Field label="Highlights" span={2} hint="One per line. Shown as chips on the category page.">
+              <Textarea
+                value={(editing.highlights || []).join('\n')}
+                onChange={(value) => setEditing({ ...editing, highlights: value.split(/\r?\n/) })}
+                rows={4}
+                maxLength={800}
+                placeholder={'Sustained FPS stability\nThermal control'}
+              />
+            </Field>
+            <Field label="Hero video URL" hint="/media/camera.mp4 or an absolute https URL.">
+              <TextInput
+                value={editing.hero_video_url}
+                onChange={(value) => setEditing({ ...editing, hero_video_url: value })}
+                maxLength={300}
+                placeholder="/media/camera.mp4"
+              />
+            </Field>
+            <Field label="Cover image URL" hint="Poster shown while the video loads.">
+              <TextInput
+                value={editing.cover_image_url}
+                onChange={(value) => setEditing({ ...editing, cover_image_url: value })}
+                maxLength={300}
+                placeholder="/media/logo.png"
               />
             </Field>
             <Field label="Visible in the storefront">
