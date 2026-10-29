@@ -494,6 +494,23 @@ async def list_devices(
     }
 
 
+@router.get(
+    "/devices/{device_id}",
+    response_model=DeviceDetail,
+    summary="One device with its children, drafts included",
+)
+async def get_admin_device(device_id: str) -> dict:
+    """Editor feed.
+
+    `GET /devices/{identifier}` is the storefront view: it hides inactive rows and
+    merges the universal USSD codes into the payload. The console must be able to
+    open a draft and see exactly the codes this device owns, so it reads the row
+    directly instead.
+    """
+    row = await get_device_row(device_id, detail=True)
+    return shape_device(row, detail=True)
+
+
 @router.post(
     "/devices",
     response_model=DeviceDetail,
@@ -544,6 +561,51 @@ async def create_device(payload: DeviceCreate, request: Request) -> dict:
         await db.insert(
             "device_scores",
             {"device_id": device_id, **payload.scores.model_dump()},
+            columns="id",
+        )
+    if payload.pros_cons:
+        await db.insert(
+            "device_pros_cons",
+            [
+                {
+                    "device_id": device_id,
+                    "type": item.type,
+                    "description": item.description,
+                    "importance": item.importance,
+                    "display_order": item.display_order,
+                }
+                for item in payload.pros_cons
+            ],
+            columns="id",
+        )
+    if payload.features:
+        await db.insert(
+            "device_features",
+            [
+                {
+                    "device_id": device_id,
+                    "feature_name": item.feature_name,
+                    "feature_value": item.feature_value,
+                    "icon": item.icon,
+                    "display_order": item.display_order,
+                }
+                for item in payload.features
+            ],
+            columns="id",
+        )
+    if payload.ussd_codes:
+        await db.insert(
+            "device_ussd_codes",
+            [
+                {
+                    "device_id": device_id,
+                    "code": item.code,
+                    "description": item.description,
+                    "category": item.category,
+                    "is_universal": False,
+                }
+                for item in payload.ussd_codes
+            ],
             columns="id",
         )
     for assignment in payload.categories:

@@ -142,6 +142,18 @@ def main(base: str, admin_key: str) -> int:
                 {"category_slug": "gaming-guru", "rank": 1},
                 {"category_slug": "budget-killer", "rank": 1},
             ],
+            "pros_cons": [
+                {"type": "pro", "description": "Sustained 90fps in QA games", "importance": 5, "display_order": 0},
+                {"type": "pro", "description": "67W charging in the box", "importance": 4, "display_order": 1},
+                {"type": "con", "description": "No wireless charging", "importance": 3, "display_order": 0},
+            ],
+            "features": [
+                {"feature_name": "Cooling", "feature_value": "Vapor chamber", "display_order": 0},
+                {"feature_name": "Display", "feature_value": "120Hz AMOLED", "display_order": 1},
+            ],
+            "ussd_codes": [
+                {"code": "*#*#4636#*#*", "description": "QA diagnostics menu", "category": "secret"},
+            ],
         }
         beta_payload = {
             "name": f"QA Beta {suffix}",
@@ -290,6 +302,83 @@ def main(base: str, admin_key: str) -> int:
             "detail hydrates specs/scores/categories",
             bool(alpha_body.get("specs")) and bool(alpha_body.get("scores")) and len(alpha_body.get("categories", [])) == 2,
             f"categories={[item['slug'] for item in alpha_body.get('categories', [])]}",
+        )
+
+        # One POST must populate every child table the product page reads.
+        specs = alpha_body.get("specs") or {}
+        check(
+            "POST /admin/devices writes the whole spec sheet",
+            specs.get("processor_name") == "QA Snap X1"
+            and specs.get("nfc") is True
+            and specs.get("battery_mah") == 5000
+            and specs.get("camera_features") == ["OIS"],
+            f"processor={specs.get('processor_name')} nfc={specs.get('nfc')}",
+        )
+        check(
+            "POST /admin/devices writes pros, cons and features",
+            len(alpha_body.get("pros", [])) == 2
+            and len(alpha_body.get("cons", [])) == 1
+            and len(alpha_body.get("features", [])) == 2,
+            f"pros={len(alpha_body.get('pros', []))} cons={len(alpha_body.get('cons', []))} "
+            f"features={len(alpha_body.get('features', []))}",
+        )
+        check(
+            "POST /admin/devices writes device USSD codes",
+            any(code.get("code") == "*#*#4636#*#*" for code in alpha_body.get("ussd_codes", [])),
+            f"codes={[code.get('code') for code in alpha_body.get('ussd_codes', [])]}",
+        )
+
+        # The console edits through this feed: it must return the draft and only the
+        # USSD codes this device owns, because the public detail merges the
+        # universal codes into the payload and the console would then edit rows it
+        # does not own.
+        editor = admin.get(f"/api/v1/admin/devices/{alpha_id}")
+        editor_body = editor.json() if editor.status_code == 200 else {}
+        check(
+            "GET /admin/devices/{id} returns the editor feed for a draft",
+            editor.status_code == 200
+            and (editor_body.get("specs") or {}).get("processor_name") == "QA Snap X1"
+            and len(editor_body.get("pros", [])) == 2
+            and len(editor_body.get("features", [])) == 2
+            and all(
+                not code.get("is_universal") for code in editor_body.get("ussd_codes", [])
+            ),
+            f"status={editor.status_code} body={editor.text[:140]}",
+        )
+
+        # Update path: one version-checked PATCH, then the per-table routes.
+        patched = admin.patch(
+            f"/api/v1/admin/devices/{alpha_id}",
+            json={"model_number": "QA-M1", "version": alpha_body["version"]},
+        )
+        check(
+            "PATCH /admin/devices/{id} applies a version-checked update",
+            patched.status_code == 200
+            and patched.json().get("model_number") == "QA-M1"
+            and patched.json().get("version") == alpha_body["version"] + 1,
+            patched.text[:160],
+        )
+        stale = admin.patch(
+            f"/api/v1/admin/devices/{alpha_id}",
+            json={"model_number": "QA-M2", "version": alpha_body["version"]},
+        )
+        check(
+            "PATCH /admin/devices/{id} rejects a stale version",
+            stale.status_code == 409,
+            f"expected 409, got {stale.status_code}: {stale.text[:120]}",
+        )
+
+        # A partial spec upsert must keep the fields the console did not send.
+        partial = admin.put(
+            f"/api/v1/admin/devices/{alpha_id}/specs",
+            json={"processor_name": "QA Snap X2"},
+        )
+        check(
+            "PUT /admin/devices/{id}/specs keeps the fields it did not receive",
+            partial.status_code == 200
+            and (partial.json() or {}).get("processor_name") == "QA Snap X2"
+            and (partial.json() or {}).get("battery_mah") == 5000,
+            partial.text[:160],
         )
 
         # ── reads ─────────────────────────────────────────────

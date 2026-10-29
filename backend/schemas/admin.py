@@ -55,6 +55,35 @@ class CategoryAssignment(APIModel):
         return self
 
 
+class ProsConsItem(APIModel):
+    # `id` present = update that row in place; absent = create a new one.
+    id: Optional[str] = None
+    type: Literal["pro", "con"]
+    description: str = Field(min_length=1, max_length=500)
+    importance: int = Field(default=3, ge=1, le=5)
+    display_order: int = Field(default=0, ge=0, le=99)
+
+
+class FeatureItem(APIModel):
+    id: Optional[str] = None
+    feature_name: str = Field(min_length=1, max_length=80)
+    feature_value: str = Field(min_length=1, max_length=500)
+    icon: Optional[str] = Field(default=None, max_length=50)
+    display_order: int = Field(default=0, ge=0, le=99)
+
+
+UssdCategory = Literal["general", "battery", "imei", "network", "display", "secret"]
+
+
+class UssdCreate(APIModel):
+    # Null device_id means the code applies to every device (universal).
+    device_id: Optional[str] = None
+    code: str = Field(min_length=2, max_length=40, pattern=r"^[0-9*#+]+$")
+    description: str = Field(min_length=1, max_length=500)
+    category: UssdCategory = "general"
+    is_universal: bool = False
+
+
 class DeviceCreate(APIModel):
     name: str = Field(min_length=1, max_length=150)
     brand_id: Optional[str] = None
@@ -73,6 +102,11 @@ class DeviceCreate(APIModel):
     specs: Optional[SpecsOut] = None
     scores: Optional[ScoresIn] = None
     categories: List[CategoryAssignment] = Field(default_factory=list)
+    # Curated children created in the same request, so one form submission can
+    # populate every table a product page reads.
+    pros_cons: List[ProsConsItem] = Field(default_factory=list)
+    features: List[FeatureItem] = Field(default_factory=list)
+    ussd_codes: List[UssdCreate] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _require_brand(self) -> "DeviceCreate":
@@ -222,41 +256,12 @@ class CategoryMemberRemoval(APIModel):
     category_version: int
 
 
-class ProsConsItem(APIModel):
-    # `id` present = update that row in place; absent = create a new one.
-    id: Optional[str] = None
-    type: Literal["pro", "con"]
-    description: str = Field(min_length=1, max_length=500)
-    importance: int = Field(default=3, ge=1, le=5)
-    display_order: int = Field(default=0, ge=0, le=99)
-
-
 class ProsConsReplace(APIModel):
     items: List[ProsConsItem] = Field(default_factory=list, max_length=40)
 
 
-class FeatureItem(APIModel):
-    id: Optional[str] = None
-    feature_name: str = Field(min_length=1, max_length=80)
-    feature_value: str = Field(min_length=1, max_length=500)
-    icon: Optional[str] = Field(default=None, max_length=50)
-    display_order: int = Field(default=0, ge=0, le=99)
-
-
 class FeatureReplace(APIModel):
     items: List[FeatureItem] = Field(default_factory=list, max_length=40)
-
-
-UssdCategory = Literal["general", "battery", "imei", "network", "display", "secret"]
-
-
-class UssdCreate(APIModel):
-    # Null device_id means the code applies to every device (universal).
-    device_id: Optional[str] = None
-    code: str = Field(min_length=2, max_length=40, pattern=r"^[0-9*#+]+$")
-    description: str = Field(min_length=1, max_length=500)
-    category: UssdCategory = "general"
-    is_universal: bool = False
 
 
 class UssdUpdate(APIModel):
