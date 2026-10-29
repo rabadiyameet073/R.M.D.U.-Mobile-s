@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import date, datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, Query, Request, Response, status
 
@@ -17,7 +17,16 @@ from core.db import DataAccessError, db
 from core.deps import require_admin, require_admin_write
 from core.errors import APIError
 from core.ratelimit import ADMIN_MUTATION
-from core.utils import as_float, offset_for, pagination_meta, slugify
+from core.utils import (
+    as_float,
+    clean_search_term,
+    identifier_filters,
+    in_filter,
+    is_uuid,
+    offset_for,
+    pagination_meta,
+    slugify,
+)
 from schemas.admin import (
     AuditLogOut,
     BrandCreate,
@@ -33,14 +42,16 @@ from schemas.admin import (
     ScoresIn,
     StatsOut,
 )
-from schemas.catalog import BrandOut, DeviceDetail, ReviewOut
+from schemas.catalog import BrandOut, DeviceCard, DeviceDetail, ReviewOut
 from schemas.catalog import ReviewModerationRequest
 from schemas.common import Page
 from services.audit import log_action
 from services.catalog_service import (
     category_device_count,
+    device_select,
     get_device,
     get_device_row,
+    shape_device,
 )
 from services.concurrency import call_rpc, interpret_rank
 from services.vector_search import embed_text
@@ -251,6 +262,51 @@ async def audit_log(
 
 
 # ── brands ─────────────────────────────────────────────────────
+@router.get(
+    "/brands",
+    response_model=List[BrandOut],
+    summary="Every brand, including deactivated ones",
+)
+async def list_brands(
+    q: Optional[str] = Query(default=None, max_length=80),
+    is_active: Optional[bool] = Query(default=None),
+    limit: int = Query(default=200, ge=1, le=500),
+) -> List[dict]:
+    """Admin brand list with device counts.
+
+    The public `/brands` feed hides deactivated rows, so the console had no way
+    to find a brand it had switched off. Counts are fetched in parallel — one
+    HEAD-style count per brand — which keeps this a fixed number of round trips
+    instead of one per rendered row.
+    """
+    filters: dict = {}
+    if is_active is not None:
+        filters["is_active"] = f"is.{str(is_active).lower()}"
+    term = (q or "").strip()
+    if term:
+        filters["name"] = f"ilike.*{term}*"
+    result = await db.select(
+        "brands",
+        columns="id,name,logo_url,country,is_active,created_at",
+        filters=filters or None,
+        order="name.asc",
+        limit=limit,
+    )
+    counts = await asyncio.gather(
+        *(
+            db.select("devices", columns="id", filters={"brand_id": f"eq.{row['id']}"}, limit=1, count=True)
+            for row in result.rows
+        ),
+        return_exceptions=True,
+    )
+    payload: List[dict] = []
+    for row, count in zip(result.rows, counts):
+        row = dict(row)
+        row["device_count"] = 0 if isinstance(count, Exception) else (count.total or 0)
+        payload.append(row)
+    return payload
+
+
 @router.post(
     "/brands",
     response_model=BrandOut,
@@ -354,6 +410,90 @@ async def deactivate_brand(brand_id: str, request: Request) -> dict:
 
 
 # ── devices ────────────────────────────────────────────────────
+@router.get(
+    "/devices",
+    response_model=Page[DeviceCard],
+    summary="Every device, including deactivated ones",
+)
+async def list_devices(
+    q: Optional[str] = Query(default=None, max_length=80),
+    brand: Optional[str] = Query(default=None, description="Brand UUID or name"),
+    category: Optional[str] = Query(default=None, description="Category UUID or slug"),
+    is_active: Optional[bool] = Query(default=None),
+    featured: Optional[bool] = Query(default=None),
+    sort: Literal[
+        "updated", "newest", "price_asc", "price_desc", "name_asc", "score_desc"
+    ] = Query(default="updated"),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+) -> dict:
+    """Catalog console feed.
+
+    `GET /devices` is the storefront: it pins `is_active=true` so an unpublished
+    row can never leak. The console needs the opposite — to find the draft it is
+    about to publish — so this route carries no implicit active filter and
+    defaults to `updated_at desc`, which surfaces the row just edited.
+    """
+    filters: dict = {}
+    inner_brand = False
+    inner_scores = False
+
+    term = clean_search_term(q)
+    if term:
+        filters["or"] = f"(name.ilike.*{term}*,slug.ilike.*{term}*)"
+    if brand:
+        if is_uuid(brand):
+            filters["brands.id"] = f"eq.{brand}"
+        else:
+            filters["brands.name"] = f"ilike.*{brand.strip()}*"
+        inner_brand = True
+    if is_active is not None:
+        filters["is_active"] = f"is.{str(is_active).lower()}"
+    if featured is not None:
+        filters["is_featured"] = f"is.{str(featured).lower()}"
+    if category:
+        category_row = await db.select_one(
+            "categories", columns="id", filters=identifier_filters(category)
+        )
+        if not category_row:
+            raise APIError(404, "category_not_found", f"No category matches '{category}'.")
+        view = await db.select(
+            "vw_category_device_ranks",
+            columns="device_id",
+            filters={"category_id": f"eq.{category_row['id']}"},
+            limit=1000,
+        )
+        device_ids = [item["device_id"] for item in view.rows]
+        if not device_ids:
+            return {"items": [], "meta": pagination_meta(page, page_size, 0)}
+        filters["id"] = in_filter(device_ids)
+
+    order = {
+        "updated": "updated_at.desc",
+        "newest": "created_at.desc",
+        "price_asc": "price.asc",
+        "price_desc": "price.desc",
+        "name_asc": "name.asc",
+        "score_desc": "device_scores(overall_score).desc.nullslast",
+    }[sort]
+    if sort == "score_desc":
+        inner_scores = True
+
+    result = await db.select(
+        "devices",
+        columns=device_select(inner_brand=inner_brand, inner_scores=inner_scores),
+        filters=filters or None,
+        order=order,
+        limit=page_size,
+        offset=offset_for(page, page_size),
+        count=True,
+    )
+    return {
+        "items": [shape_device(row) for row in result.rows],
+        "meta": pagination_meta(page, page_size, result.total or 0),
+    }
+
+
 @router.post(
     "/devices",
     response_model=DeviceDetail,

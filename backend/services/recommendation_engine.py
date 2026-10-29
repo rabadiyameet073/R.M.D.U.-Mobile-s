@@ -189,6 +189,8 @@ def _candidate_filters(request: RecommendationRequest) -> Dict[str, object]:
     }
     if request.require_five_g:
         filters["device_specs.five_g"] = "is.true"
+    if request.require_nfc:
+        filters["device_specs.nfc"] = "is.true"
     if request.preferred_os != "any":
         filters["device_specs.os"] = f"ilike.*{request.preferred_os}*"
     if request.min_ram_gb:
@@ -211,6 +213,7 @@ async def recommend(
 
     needs_specs = bool(
         request.require_five_g
+        or request.require_nfc
         or request.preferred_os != "any"
         or request.min_ram_gb
     )

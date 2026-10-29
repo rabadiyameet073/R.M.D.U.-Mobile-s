@@ -46,8 +46,34 @@ def main(base: str) -> int:
           body_snippet(health))
 
     openapi = client.get(f"{api}/openapi.json")
-    check("GET openapi.json", openapi.status_code == 200 and "paths" in openapi.json(),
-          f"{len(openapi.json().get('paths', {}))} paths")
+    openapi_body = openapi.json() if openapi.status_code == 200 else {}
+    check("GET openapi.json", openapi.status_code == 200 and "paths" in openapi_body,
+          f"{len(openapi_body.get('paths', {}))} paths")
+
+    operations = [
+        operation
+        for path_item in openapi_body.get("paths", {}).values()
+        for operation in path_item.values()
+        if isinstance(operation, dict)
+    ]
+    untagged = [op for op in operations if not op.get("tags")]
+    check(
+        "every operation is tagged for /docs grouping",
+        bool(operations) and not untagged,
+        f"{len(operations)} operations, {len(untagged)} untagged",
+    )
+    documented_tags = {tag["name"] for tag in openapi_body.get("tags", [])}
+    used_tags = {tag for op in operations for tag in op.get("tags", [])}
+    check(
+        "every used tag is declared with a description",
+        bool(documented_tags) and used_tags <= documented_tags,
+        f"declared={len(documented_tags)} used={len(used_tags)} "
+        f"missing={sorted(used_tags - documented_tags)}",
+    )
+    check(
+        "category meta is documented",
+        f"{api}/categories/{{identifier}}/meta" in openapi_body.get("paths", {}),
+    )
 
     meta = client.get(f"{api}/meta")
     check("GET /meta", meta.status_code == 200 and "categories" in meta.json(),
@@ -74,6 +100,18 @@ def main(base: str) -> int:
         params={"five_g": "true", "min_price": 10000, "max_price": 60000, "sort": "score_desc"},
     )
     check("GET /devices with filters", filtered.status_code == 200, body_snippet(filtered))
+
+    nfc = client.get(f"{api}/devices", params={"nfc": "true"})
+    check("GET /devices?nfc filter", nfc.status_code == 200, body_snippet(nfc))
+
+    suggest = client.get(f"{api}/devices/suggest", params={"q": "phone"})
+    check(
+        "GET /devices/suggest",
+        suggest.status_code == 200 and isinstance(suggest.json(), list),
+        body_snippet(suggest),
+    )
+    suggest_blank = client.get(f"{api}/devices/suggest")
+    check("GET /devices/suggest without q -> 422", suggest_blank.status_code == 422)
 
     featured = client.get(f"{api}/devices/featured")
     check("GET /devices/featured", featured.status_code == 200, body_snippet(featured))
@@ -137,6 +175,22 @@ def main(base: str) -> int:
     check("POST /compare requires 2 devices", compare_bad.status_code == 422,
           body_snippet(compare_bad))
 
+    missing_session = client.get(f"{api}/compare/{uuid.uuid4()}")
+    check(
+        "GET /compare unknown session -> 404",
+        missing_session.status_code == 404
+        and missing_session.json().get("error", {}).get("code") == "comparison_not_found",
+        body_snippet(missing_session),
+    )
+
+    review_edit = client.patch(f"{api}/devices/nope/reviews/{uuid.uuid4()}", json={"rating": 4})
+    check("PATCH review without token -> 401", review_edit.status_code == 401,
+          body_snippet(review_edit))
+
+    review_delete = client.delete(f"{api}/devices/nope/reviews/{uuid.uuid4()}")
+    check("DELETE review without token -> 401", review_delete.status_code == 401,
+          body_snippet(review_delete))
+
     # ── auth gates ───────────────────────────────────────────
     me = client.get(f"{api}/me")
     check(
@@ -156,9 +210,20 @@ def main(base: str) -> int:
         f"status={admin_wrong.status_code}",
     )
 
+    admin_devices = client.get(f"{api}/admin/devices")
+    check("GET /admin/devices gated", admin_devices.status_code in (401, 503),
+          f"status={admin_devices.status_code}")
+    admin_brands = client.get(f"{api}/admin/brands")
+    check("GET /admin/brands gated", admin_brands.status_code in (401, 503),
+          f"status={admin_brands.status_code}")
+
     # ── ai ───────────────────────────────────────────────────
     status = client.get(f"{api}/ai/status")
     check("GET /ai/status", status.status_code == 200, body_snippet(status))
+
+    session_list = client.get(f"{api}/ai/chat/sessions")
+    check("GET /ai/chat/sessions without token -> 401", session_list.status_code == 401,
+          body_snippet(session_list))
 
     query = client.post(f"{api}/ai/query", json={"query": "best gaming phone under 30000", "limit": 3})
     query_body = query.json() if query.status_code == 200 else {}

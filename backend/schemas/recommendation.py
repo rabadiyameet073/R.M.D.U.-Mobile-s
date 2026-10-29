@@ -21,6 +21,7 @@ class RecommendationRequest(APIModel):
     preferred_os: Literal["android", "ios", "any"] = "any"
     preferred_brands: List[str] = Field(default_factory=list)
     require_five_g: bool = False
+    require_nfc: bool = False
     min_ram_gb: Optional[int] = Field(default=None, ge=1, le=32)
     limit: int = Field(default=5, ge=1, le=20)
     persist: bool = False

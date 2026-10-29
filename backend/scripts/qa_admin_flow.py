@@ -192,6 +192,94 @@ def main(base: str, admin_key: str) -> int:
         if alpha.status_code != 201 or beta.status_code != 201:
             return 1
 
+        alpha_id = alpha_body["id"]
+        beta_id = beta_body["id"]
+
+        # ── console read surfaces ─────────────────────────────
+        admin_devices = admin.get(
+            "/api/v1/admin/devices", params={"q": f"QA Alpha {suffix}"}
+        )
+        listed = admin_devices.json().get("items", []) if admin_devices.status_code == 200 else []
+        check(
+            "GET /admin/devices finds the draft by name",
+            admin_devices.status_code == 200 and any(row["id"] == alpha_id for row in listed),
+            f"status={admin_devices.status_code} items={len(listed)}",
+        )
+
+        hidden = admin.get(
+            "/api/v1/admin/devices", params={"is_active": "false", "q": f"QA {suffix}"}
+        )
+        check(
+            "GET /admin/devices can filter to deactivated rows",
+            hidden.status_code == 200 and isinstance(hidden.json().get("items"), list),
+            f"status={hidden.status_code}",
+        )
+
+        admin_brands = admin.get("/api/v1/admin/brands", params={"q": brand_name})
+        brand_rows = admin_brands.json() if admin_brands.status_code == 200 else []
+        brand_row = next((row for row in brand_rows if row["id"] == state["brand_id"]), {})
+        check(
+            "GET /admin/brands lists the brand with its device count",
+            admin_brands.status_code == 200 and brand_row.get("device_count") == 2,
+            f"status={admin_brands.status_code} count={brand_row.get('device_count')}",
+        )
+
+        # ── storefront filters on real rows ───────────────────
+        nfc_only = api.get("/api/v1/devices", params={"nfc": "true", "page_size": 100})
+        nfc_ids = [row["id"] for row in nfc_only.json().get("items", [])] if nfc_only.status_code == 200 else []
+        check(
+            "GET /devices?nfc=true keeps the NFC device and drops the other",
+            nfc_only.status_code == 200 and alpha_id in nfc_ids and beta_id not in nfc_ids,
+            f"status={nfc_only.status_code} matches={len(nfc_ids)}",
+        )
+
+        suggest = api.get("/api/v1/devices/suggest", params={"q": f"QA Alpha {suffix}"})
+        suggest_rows = suggest.json() if suggest.status_code == 200 else []
+        check(
+            "GET /devices/suggest returns the typeahead row",
+            suggest.status_code == 200
+            and any(row["id"] == alpha_id and row.get("brand_name") for row in suggest_rows),
+            f"status={suggest.status_code} rows={len(suggest_rows)}",
+        )
+
+        # ── saved comparison round trip ───────────────────────
+        compared = api.post(
+            "/api/v1/compare",
+            json={"devices": [alpha_id, beta_id], "priority": "camera"},
+        )
+        compared_body = compared.json() if compared.status_code == 200 else {}
+        session_id = compared_body.get("session_id")
+        state["comparison_id"] = session_id
+        check(
+            "POST /compare stores a session for the two QA devices",
+            compared.status_code == 200
+            and bool(session_id)
+            and compared_body.get("winner_device_id") == beta_id,
+            f"status={compared.status_code} winner={compared_body.get('winner_device_id')}",
+        )
+
+        if session_id:
+            reopened = api.get(
+                f"/api/v1/compare/{session_id}", params={"priority": "camera"}
+            )
+            reopened_body = reopened.json() if reopened.status_code == 200 else {}
+            check(
+                "GET /compare/{session_id} re-opens the saved session",
+                reopened.status_code == 200
+                and reopened_body.get("session_id") == session_id
+                and reopened_body.get("winner_device_id") == beta_id
+                and len(reopened_body.get("rows", [])) > 10,
+                f"status={reopened.status_code} rows={len(reopened_body.get('rows', []))}",
+            )
+
+        unknown = api.get(f"/api/v1/compare/{uuid.uuid4()}")
+        check(
+            "GET /compare unknown session -> 404",
+            unknown.status_code == 404
+            and unknown.json().get("error", {}).get("code") == "comparison_not_found",
+            f"status={unknown.status_code}",
+        )
+
         overall = alpha_body.get("overall_score")
         check(
             "overall_score computed by DB trigger",

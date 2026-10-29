@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import List, Literal, Optional
 
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, Query, Request, Response, status
 
 from core.config import settings
 from core.db import DataAccessError, db
@@ -12,6 +13,7 @@ from core.deps import CurrentUser, get_current_user, require_feature
 from core.errors import APIError
 from core.ratelimit import REVIEW_WRITE
 from core.utils import (
+    as_float,
     clean_search_term,
     identifier_filters,
     in_filter,
@@ -23,9 +25,11 @@ from core.utils import (
 from schemas.catalog import (
     DeviceCard,
     DeviceDetail,
+    DeviceSuggestion,
     HelpfulVoteResponse,
     ReviewCreateRequest,
     ReviewOut,
+    ReviewUpdateRequest,
     UssdOut,
 )
 from schemas.common import Page
@@ -83,6 +87,7 @@ async def list_devices(
     min_price: Optional[float] = Query(default=None, ge=0),
     max_price: Optional[float] = Query(default=None, ge=0),
     five_g: Optional[bool] = Query(default=None),
+    nfc: Optional[bool] = Query(default=None, description="Tap-to-pay / NFC hardware"),
     min_ram_gb: Optional[int] = Query(default=None, ge=1, le=32),
     min_battery_mah: Optional[int] = Query(default=None, ge=1000, le=20000),
     min_refresh_rate: Optional[int] = Query(default=None, ge=30, le=360),
@@ -120,6 +125,9 @@ async def list_devices(
         filters["price"] = price_filters
     if five_g is not None:
         filters["device_specs.five_g"] = f"is.{str(five_g).lower()}"
+        inner_specs = True
+    if nfc is not None:
+        filters["device_specs.nfc"] = f"is.{str(nfc).lower()}"
         inner_specs = True
     if min_ram_gb is not None:
         filters["device_specs.ram_gb"] = f"gte.{min_ram_gb}"
@@ -172,6 +180,50 @@ async def featured_devices(
             limit=limit,
         )
     return [shape_device(row) for row in result.rows]
+
+
+@router.get(
+    "/suggest",
+    response_model=List[DeviceSuggestion],
+    summary="Typeahead search (name and slug prefix match)",
+)
+async def suggest_devices(
+    q: str = Query(min_length=1, max_length=80, description="Partial device name"),
+    limit: int = Query(default=6, ge=1, le=10),
+) -> List[dict]:
+    """Cheap dropdown search that never hydrates specs, scores or reviews.
+
+    Declared before `/{identifier}` so the literal path wins: FastAPI matches
+    routes in declaration order, and a path parameter would otherwise swallow
+    `/devices/suggest` and answer 404 device_not_found.
+    """
+    term = clean_search_term(q)
+    if not term:
+        return []
+    result = await db.select(
+        "devices",
+        columns="id,name,slug,price,currency,image_url,brand:brands(name)",
+        filters={"is_active": "is.true", "or": f"(name.ilike.*{term}*,slug.ilike.*{term}*)"},
+        order="name.asc",
+        limit=limit,
+    )
+    suggestions: List[dict] = []
+    for row in result.rows:
+        brand = row.get("brand")
+        if isinstance(brand, list):
+            brand = brand[0] if brand else {}
+        suggestions.append(
+            {
+                "id": row.get("id"),
+                "name": row.get("name"),
+                "slug": row.get("slug"),
+                "price": as_float(row.get("price")) or 0.0,
+                "currency": row.get("currency") or "INR",
+                "image_url": row.get("image_url"),
+                "brand_name": (brand or {}).get("name"),
+            }
+        )
+    return suggestions
 
 
 @router.get("/{identifier}", response_model=DeviceDetail, summary="Get full device detail")
@@ -322,6 +374,119 @@ async def create_review(
         actor_id=user.id,
     )
     return created
+
+
+@router.patch(
+    "/{identifier}/reviews/{review_id}",
+    response_model=ReviewOut,
+    dependencies=[Depends(REVIEW_WRITE), Depends(require_feature("feature_reviews"))],
+    summary="Edit your own review (returns it to moderation)",
+)
+async def update_review(
+    identifier: str,
+    review_id: str,
+    payload: ReviewUpdateRequest,
+    request: Request,
+    user: CurrentUser = Depends(get_current_user),
+) -> dict:
+    """Author-only edit.
+
+    `is_approved` is reset to false in the same write: a review that was already
+    published must not change its rating behind the moderator's back, so an edit
+    re-enters the queue. `verified_owner` is deliberately untouched — ownership
+    is a fact about the phone history, not about the words.
+    """
+    device = await db.select_one("devices", columns="id", filters=identifier_filters(identifier))
+    if not device:
+        raise APIError(404, "device_not_found", f"No device matches '{identifier}'.")
+    review = await db.select_one(
+        "reviews",
+        columns="id,user_id,device_id,rating,is_approved",
+        filters={"id": f"eq.{review_id}", "device_id": f"eq.{device['id']}"},
+    )
+    if not review:
+        raise APIError(404, "review_not_found", "No matching review for this device.")
+    if review["user_id"] != user.id:
+        raise APIError(403, "review_forbidden", "You can only edit your own review.")
+
+    values: dict = {"is_approved": False, "updated_at": datetime.now(timezone.utc).isoformat()}
+    if payload.rating is not None:
+        values["rating"] = payload.rating
+    if payload.title is not None:
+        values["title"] = payload.title
+    if payload.review_text is not None:
+        values["review_text"] = payload.review_text
+
+    rows = await db.update(
+        "reviews",
+        {"id": f"eq.{review_id}", "user_id": f"eq.{user.id}"},
+        values,
+        columns=(
+            "id,user_id,device_id,rating,title,review_text,verified_owner,"
+            "helpful_votes,is_approved,created_at"
+        ),
+    )
+    if not rows:
+        raise APIError(404, "review_not_found", "No matching review for this device.")
+
+    updated = rows[0]
+    author = await db.select_one(
+        "users", columns="id,name,avatar_url", filters={"id": f"eq.{user.id}"}
+    )
+    updated["author"] = author or {"id": user.id}
+    await log_action(
+        "review.update",
+        target_type="review",
+        target_id=review_id,
+        old_value={"rating": review.get("rating"), "is_approved": review.get("is_approved")},
+        new_value={"rating": updated.get("rating"), "is_approved": False},
+        ip_address=request.client.host if request.client else None,
+        actor_id=user.id,
+    )
+    return updated
+
+
+@router.delete(
+    "/{identifier}/reviews/{review_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+    response_model=None,
+    dependencies=[Depends(REVIEW_WRITE), Depends(require_feature("feature_reviews"))],
+    summary="Delete your own review",
+)
+async def delete_review(
+    identifier: str,
+    review_id: str,
+    request: Request,
+    user: CurrentUser = Depends(get_current_user),
+) -> None:
+    """Author-only delete.
+
+    The delete is filtered by `user_id` as well as `id`, so a forged review id
+    matches zero rows instead of another person's review. Helpful votes follow
+    the row through `review_votes.review_id ... ON DELETE CASCADE`.
+    """
+    device = await db.select_one("devices", columns="id", filters=identifier_filters(identifier))
+    if not device:
+        raise APIError(404, "device_not_found", f"No device matches '{identifier}'.")
+    review = await db.select_one(
+        "reviews",
+        columns="id,user_id,rating",
+        filters={"id": f"eq.{review_id}", "device_id": f"eq.{device['id']}"},
+    )
+    if not review:
+        raise APIError(404, "review_not_found", "No matching review for this device.")
+    if review["user_id"] != user.id:
+        raise APIError(403, "review_forbidden", "You can only delete your own review.")
+    await db.delete("reviews", {"id": f"eq.{review_id}", "user_id": f"eq.{user.id}"})
+    await log_action(
+        "review.delete",
+        target_type="review",
+        target_id=review_id,
+        old_value={"rating": review.get("rating"), "device_id": device["id"]},
+        ip_address=request.client.host if request.client else None,
+        actor_id=user.id,
+    )
 
 
 @router.post(

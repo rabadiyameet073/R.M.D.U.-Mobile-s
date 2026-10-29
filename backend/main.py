@@ -37,6 +37,48 @@ from services.catalog_service import categories_with_counts
 from services.recommendation_engine import load_rules
 
 APP_VERSION = "1.0.0"
+OPENAPI_TAGS = [
+    {
+        "name": "system",
+        "description": "Liveness, readiness, feature-flag snapshot and catalog metadata.",
+    },
+    {
+        "name": "devices",
+        "description": "Catalog search and filters, typeahead, full detail, reviews and USSD codes.",
+    },
+    {
+        "name": "categories",
+        "description": "The RMDU categories with dense, admin-ordered ranks and an auto-ranking view.",
+    },
+    {
+        "name": "brands",
+        "description": "Brand directory and the catalog filtered by brand.",
+    },
+    {
+        "name": "compare",
+        "description": "Side-by-side spec matrix, weighted scoreboard and re-openable saved sessions.",
+    },
+    {
+        "name": "recommendations",
+        "description": "Weighted recommendation engine: guest, quick-pick and personal modes.",
+    },
+    {
+        "name": "me",
+        "description": "Signed-in profile, phone history, price alerts, cards, reviews and activity feed.",
+    },
+    {
+        "name": "retail",
+        "description": "Shareable shopkeeper cards addressed by short code; public lookup counts views.",
+    },
+    {
+        "name": "ai",
+        "description": "Grounded semantic search, RAG answers and chat sessions.",
+    },
+    {
+        "name": "admin",
+        "description": "X-Admin-Key gated reads and writes for the catalog console; every mutation is audited.",
+    },
+]
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
@@ -70,6 +112,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url=f"{settings.api_prefix}/openapi.json",
+    openapi_tags=OPENAPI_TAGS,
     lifespan=lifespan,
 )
 

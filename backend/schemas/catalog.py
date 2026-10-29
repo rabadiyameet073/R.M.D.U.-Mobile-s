@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import Any, Dict, List, Optional
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 
 from schemas.common import APIModel
 
@@ -210,11 +210,41 @@ class CategoryDetail(CategoryOut):
     ranking_mode: str = "manual"
 
 
+class DeviceSuggestion(APIModel):
+    """Typeahead row: enough to render a search dropdown, nothing more."""
+
+    id: str
+    name: str
+    slug: str
+    price: float = 0
+    currency: str = "INR"
+    image_url: Optional[str] = None
+    brand_name: Optional[str] = None
+
+
 class ReviewCreateRequest(APIModel):
     device_id: str
     rating: int = Field(ge=1, le=5)
     title: Optional[str] = Field(default=None, max_length=120)
     review_text: Optional[str] = Field(default=None, max_length=4000)
+
+
+class ReviewUpdateRequest(APIModel):
+    """Author edit. Every field is optional, but an empty body is a 422.
+
+    Editing sends the review back to moderation: `is_approved` is reset, so a
+    previously published rating cannot be silently rewritten after the fact.
+    """
+
+    rating: Optional[int] = Field(default=None, ge=1, le=5)
+    title: Optional[str] = Field(default=None, max_length=120)
+    review_text: Optional[str] = Field(default=None, max_length=4000)
+
+    @model_validator(mode="after")
+    def _require_change(self) -> "ReviewUpdateRequest":
+        if self.rating is None and self.title is None and self.review_text is None:
+            raise ValueError("provide at least one of rating, title or review_text")
+        return self
 
 
 class ReviewModerationRequest(APIModel):

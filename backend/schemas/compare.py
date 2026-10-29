@@ -73,3 +73,15 @@ class ComparisonSessionOut(APIModel):
     winner_device_id: Optional[str] = None
     created_at: Optional[datetime] = None
     devices: List[DeviceCard] = Field(default_factory=list)
+
+
+class SavedComparisonResponse(ComparisonResponse):
+    """A stored session replayed through the current engine.
+
+    `saved_at` is when the comparison was first run; `generated_at` and the
+    scoreboard are recomputed now, so a re-opened link reflects the weights,
+    scores and prices the database holds today.
+    """
+
+    saved_at: Optional[datetime] = None
+    saved_winner_device_id: Optional[str] = None

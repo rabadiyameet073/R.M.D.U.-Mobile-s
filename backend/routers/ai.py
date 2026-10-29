@@ -5,13 +5,14 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 
 from core.config import settings
 from core.db import db
-from core.deps import CurrentUser, get_optional_user, require_feature
+from core.deps import CurrentUser, get_current_user, get_optional_user, require_feature
 from core.errors import APIError
 from core.ratelimit import AI_QUERY
+from core.utils import offset_for, pagination_meta
 from schemas.ai import (
     AIQueryRequest,
     AIQueryResponse,
@@ -22,6 +23,7 @@ from schemas.ai import (
     ChatTurnResponse,
     EmbeddingStatus,
 )
+from schemas.common import Page
 from services.vector_search import (
     answer_chat_turn,
     answer_query,
@@ -137,6 +139,41 @@ async def create_chat_session(
             },
         )
     return session
+
+
+@router.get(
+    "/chat/sessions",
+    response_model=Page[ChatSessionOut],
+    summary="My chat sessions, newest activity first",
+)
+async def list_chat_sessions(
+    active_only: bool = Query(default=False, description="Hide sessions the user closed"),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=50),
+    user: CurrentUser = Depends(get_current_user),
+) -> dict:
+    """Session history for the signed-in account.
+
+    Anonymous sessions belong to nobody, so they are intentionally absent here:
+    a token holder can still read a single anonymous session, but no listing
+    endpoint will ever enumerate other people's conversations.
+    """
+    filters = {"user_id": f"eq.{user.id}"}
+    if active_only:
+        filters["is_active"] = "is.true"
+    result = await db.select(
+        "ai_chat_sessions",
+        columns=SESSION_COLUMNS,
+        filters=filters,
+        order="last_message_at.desc.nullslast,created_at.desc",
+        limit=page_size,
+        offset=offset_for(page, page_size),
+        count=True,
+    )
+    return {
+        "items": result.rows,
+        "meta": pagination_meta(page, page_size, result.total or 0),
+    }
 
 
 @router.get("/chat/sessions/{token}", response_model=ChatSessionOut)

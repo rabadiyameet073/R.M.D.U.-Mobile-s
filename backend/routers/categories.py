@@ -65,9 +65,18 @@ async def category_devices(
     return {"items": items, "meta": meta}
 
 
-@router.get("/{identifier}/meta", response_model=dict, include_in_schema=False)
+@router.get(
+    "/{identifier}/meta",
+    response_model=CategoryOut,
+    summary="Category header without the device payload",
+)
 async def category_meta(identifier: str) -> dict:
-    """Lightweight category header (no device payload)."""
+    """Lightweight category header for nav, breadcrumbs and thin-page checks.
+
+    Listed in the schema because the SEO rule the frontend implements — a page
+    with fewer than three devices must render `noindex, follow` — needs this
+    count before it decides what to render.
+    """
     category = await _resolve_category(identifier)
     total = await db.select(
         "device_categories",
