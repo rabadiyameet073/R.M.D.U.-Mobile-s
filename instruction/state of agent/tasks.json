@@ -11,14 +11,14 @@
   },
   "_demo": "RMDU Mobiles Smartphone Recommendation Platform active track.",
   "summary": {
-    "total": 27,
-    "done": 23,
+    "total": 28,
+    "done": 24,
     "in_progress": 3,
     "backlog": 1
   },
   "session": {
     "branch": "main",
-    "tip": "b635ac8",
+    "tip": "a82b69e",
     "unpushed": [
       "0f0ba2c",
       "1a904a8",
@@ -26,20 +26,24 @@
       "d34951f",
       "877f1a3",
       "c80b383",
-      "b635ac8"
+      "b635ac8",
+      "5c669b4",
+      "a82b69e"
     ],
-    "next_up": "Paste database/08_atomic_counters_votes_and_dense_ranks.sql into the Supabase SQL editor, run python scripts/apply_sql.py --check, then re-run qa_admin_flow.py so PUT /admin/categories/{id}/order and DELETE /admin/categories/{id}/devices/{device_id} exercise the real RPCs instead of the 503 migration_required path",
+    "next_up": "Set ADMIN_API_KEY on the backend, open http://localhost:5100/#/admin and add the first real product from the console: the panel covers every field, but the live catalog is still empty because seed 05 targets a brands.slug column the schema does not have. Separately, paste database/08_atomic_counters_votes_and_dense_ranks.sql into the Supabase SQL editor so PUT /admin/categories/{id}/order and DELETE /admin/categories/{id}/devices/{device_id} run the real RPCs instead of 503 migration_required",
     "pending_verifications": [
-      "Migration 08 is NOT applied to the live project yet; every caller of fn_increment_card_view, fn_vote_review_helpful, fn_remove_category_member and fn_rerank_category_batch answers 503 migration_required until it is",
-      "Migrations 06 and 07 are applied: qa_admin_flow.py exercises the shift trigger and fn_rerank_device and passes 31/31 on the committed tree",
-      "Rule 02 gate evidence on the committed tree: compileall clean, 101 routes import, 96 documented operations with 0 untagged and all 10 tags declared, smoke_test.py 39/39 and qa_admin_flow.py 31/31 with ADMIN_API_KEY set. The frontend gates (Vite build, token purity, CSS proof, viewports, accessibility) were not run because no frontend file was touched",
-      "The new admin lists, nfc filter, typeahead and compare replay were proven against live QA rows (compare re-opened with 47 matrix rows and the same winner) and the QA rows were deleted afterwards",
-      "Review edit/delete are owner-gated but only their 401 gate is proven: no Supabase user JWT is available to the QA scripts",
+      "Admin console gate evidence on the committed tree: npm run build succeeds in frontend/, python -c 'import main' imports 102 routes, qa_admin_flow.py 38/38 and smoke_test.py 39/39 against an uvicorn on 8095 with ADMIN_API_KEY=qa-local-key-123",
+      "The console was driven twice in a real browser with zero console errors: pass 1 created QA Browser Panel with a new brand, two spec columns, two scores and Gaming Guru rank 1 through one POST /admin/devices (201, all child tables populated); pass 2 created a brand from the modal and unpublished the device (badge DRAFT, Overview Published tile 0), and both QA rows plus the nine screenshots were deleted afterwards",
+      "Sidebar counters refresh without a reload after any mutation (statsTick in AdminApp), and the shell measures scrollWidth === clientWidth at 788x422 after the minmax(0,1fr) and min-width:0 fixes",
+      "The console authenticates with the X-Admin-Key secret only and keeps it in sessionStorage; it is an operator console, not a user-facing auth surface, so it must not be exposed without TLS and a rotated key",
+      "Only the storefront files App.jsx touched, and only additively (an /admin branch plus a data-page attribute); no storefront component, page CSS or token was modified",
+      "Review moderation is reachable from the console but author-side edit/delete still only prove their 401 gate: no Supabase user JWT is available to the QA scripts",
       "The batch-reorder and member-removal routes were only proven on the degraded path (503 naming database/08_atomic_counters_votes_and_dense_ranks.sql); their success path has never run",
+      "Migration 08 is NOT applied to the live project yet, so fn_increment_card_view, fn_vote_review_helpful, fn_remove_category_member and fn_rerank_category_batch answer 503 migration_required; migrations 06 and 07 are applied",
       "The .env DATABASE_URL/DATABASE_POOLED_URL pair is stale: the direct host has no DNS record and the pooler password is rejected, so apply_sql.py cannot connect until that is refreshed",
-      "Seven local commits (0f0ba2c..b635ac8) await the human push; session.tip is the last functional commit, this tracker commit sits directly on top of it",
-      "Catalog is still empty (0 devices, 0 brands, 5 categories): seed 05 cannot run because it targets brands.slug, a column the live schema does not have",
-      "Untracked and deliberately uncommitted: README.md, RMDU_Mobiles_Project_Documentation.md, .env.example, frontend/.env.example, frontend/src/lib/, and the modified frontend/package.json, package-lock.json and vite.config.js",
+      "Nine local commits (0f0ba2c..a82b69e) await the human push; session.tip is the last functional commit, this tracker commit sits directly on top of it",
+      "Catalog is still empty (0 devices, 0 brands, 5 categories): seed 05 cannot run because it targets brands.slug, a column the live schema does not have, so every product in the storefront has to come from the console until that seed is rewritten",
+      "Untracked and deliberately uncommitted: README.md, RMDU_Mobiles_Project_Documentation.md, .env.example, frontend/.env.example, frontend/src/lib/, frontend/dist/, and the modified frontend/package.json, package-lock.json and vite.config.js",
       "AI endpoints answer in keyword/template mode until a real OPENAI_API_KEY is configured"
     ],
     "last_updated": "2026-10-29",
@@ -511,6 +515,34 @@
       "follow_ups": [
         "Review edit/delete are owner-gated and only proven through their 401 gate: the QA flow holds an admin key, not a Supabase user JWT, so a real author round trip still needs a signed-in account",
         "The typeahead uses ilike on name and slug; the trigram index serves it, but a dedicated suggest RPC would cut the wildcard cost once the catalog grows"
+      ]
+    },
+    {
+      "id": "RMDU-ADMIN-001",
+      "title": "Dynamic Admin Console for Every Catalog Field, Wired to API and Database",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-29",
+      "finished": "2026-10-29",
+      "log": "main:5c669b4 backend half (child tables on device create, editor feed, QA); main:a82b69e frontend half (frontend/src/admin/**, App.jsx /admin branch)",
+      "design_match": "partial",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "The console lives at frontend/src/admin/ and is reached through one additive branch in App.jsx: /admin or #/admin/* mounts it, the storefront routes below stay byte-identical, and the only storefront-facing side effect is body[data-page='admin']",
+        "Device create is a single POST /admin/devices carrying the root row, specs, scores, categories, pros_cons, features and ussd_codes, so one form submission fills every table a product page reads and a half-created product cannot exist",
+        "Device update is a named per-table save chain (row, specs, scores, pros/cons, features, category membership, USSD diff); each step is logged as a chip, so a failure names the table it stopped at instead of leaving the form ambiguous",
+        "GET /admin/devices/{id} was added because GET /devices/{identifier} is the storefront view: it hides inactive rows and merges the universal USSD codes, which would have let the editor rewrite codes the device does not own",
+        "field metadata lives in frontend/src/admin/fields.js (13 root columns, 40 spec columns in 7 groups, 7 scores, enums, payload builders) and the spec tab diffs those keys against components.schemas.SpecsOut at runtime, so a schema change surfaces as a visible drift notice rather than a silently missing input",
+        "Optimistic concurrency is honoured end to end: every root PATCH carries version, a stale version answers 409 version_conflict, and the console reloads the row instead of overwriting",
+        "Categories, brands, review moderation, recommendation weights (save blocked unless the seven weights sum to 1.00) and the audit log are all reachable, so no field or table needs hand-written SQL",
+        "Analytics counters in the sidebar refresh after any mutation (statsTick), and admin.css is .adm- scoped except two global rules that switch off scroll-snap and the hidden storefront cursor"
+      ],
+      "follow_ups": [
+        "The console is key-only (X-Admin-Key held in sessionStorage) and there is no per-operator identity, so audit_log.actor is the shared key; add real operator accounts before more than one person edits the catalog",
+        "Media is a URL field only: there is no upload endpoint, so images still have to be hosted elsewhere first",
+        "PUT /admin/devices/{id}/categories remains one RPC per category, so a 409 on the second category leaves the first applied; add the batch RPC before relying on multi-category edits under contention",
+        "The console has no bulk import, duplication or CSV path yet, which matters while seed 05 is unusable"
       ]
     },
     {
