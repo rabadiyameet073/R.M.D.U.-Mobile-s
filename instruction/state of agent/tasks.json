@@ -11,29 +11,33 @@
   },
   "_demo": "RMDU Mobiles Smartphone Recommendation Platform active track.",
   "summary": {
-    "total": 26,
-    "done": 22,
+    "total": 27,
+    "done": 23,
     "in_progress": 3,
     "backlog": 1
   },
   "session": {
     "branch": "main",
-    "tip": "877f1a3",
+    "tip": "b635ac8",
     "unpushed": [
       "0f0ba2c",
       "1a904a8",
       "e5626ac",
       "d34951f",
-      "877f1a3"
+      "877f1a3",
+      "c80b383",
+      "b635ac8"
     ],
     "next_up": "Paste database/08_atomic_counters_votes_and_dense_ranks.sql into the Supabase SQL editor, run python scripts/apply_sql.py --check, then re-run qa_admin_flow.py so PUT /admin/categories/{id}/order and DELETE /admin/categories/{id}/devices/{device_id} exercise the real RPCs instead of the 503 migration_required path",
     "pending_verifications": [
       "Migration 08 is NOT applied to the live project yet; every caller of fn_increment_card_view, fn_vote_review_helpful, fn_remove_category_member and fn_rerank_category_batch answers 503 migration_required until it is",
-      "Migrations 06 and 07 are applied: qa_admin_flow.py exercises the shift trigger and fn_rerank_device and passes 23/23 on the committed tree",
-      "Rule 02 gate evidence on the committed tree: compileall clean, 94 routes import, smoke_test.py 27/27 and qa_admin_flow.py 23/23 with ADMIN_API_KEY set. The frontend gates (Vite build, token purity, CSS proof, viewports, accessibility) were not run because no frontend file was touched",
+      "Migrations 06 and 07 are applied: qa_admin_flow.py exercises the shift trigger and fn_rerank_device and passes 31/31 on the committed tree",
+      "Rule 02 gate evidence on the committed tree: compileall clean, 101 routes import, 96 documented operations with 0 untagged and all 10 tags declared, smoke_test.py 39/39 and qa_admin_flow.py 31/31 with ADMIN_API_KEY set. The frontend gates (Vite build, token purity, CSS proof, viewports, accessibility) were not run because no frontend file was touched",
+      "The new admin lists, nfc filter, typeahead and compare replay were proven against live QA rows (compare re-opened with 47 matrix rows and the same winner) and the QA rows were deleted afterwards",
+      "Review edit/delete are owner-gated but only their 401 gate is proven: no Supabase user JWT is available to the QA scripts",
       "The batch-reorder and member-removal routes were only proven on the degraded path (503 naming database/08_atomic_counters_votes_and_dense_ranks.sql); their success path has never run",
       "The .env DATABASE_URL/DATABASE_POOLED_URL pair is stale: the direct host has no DNS record and the pooler password is rejected, so apply_sql.py cannot connect until that is refreshed",
-      "Five local commits (0f0ba2c..877f1a3) await the human push; session.tip is the last functional commit, this tracker commit sits directly on top of it",
+      "Seven local commits (0f0ba2c..b635ac8) await the human push; session.tip is the last functional commit, this tracker commit sits directly on top of it",
       "Catalog is still empty (0 devices, 0 brands, 5 categories): seed 05 cannot run because it targets brands.slug, a column the live schema does not have",
       "Untracked and deliberately uncommitted: README.md, RMDU_Mobiles_Project_Documentation.md, .env.example, frontend/.env.example, frontend/src/lib/, and the modified frontend/package.json, package-lock.json and vite.config.js",
       "AI endpoints answer in keyword/template mode until a real OPENAI_API_KEY is configured"
@@ -483,6 +487,30 @@
       "follow_ups": [
         "The success path of fn_vote_review_helpful, fn_remove_category_member and fn_rerank_category_batch has not run against live data yet",
         "PUT /admin/devices/{id}/categories still issues one RPC per category, so a 409 on the second leaves the first applied"
+      ]
+    },
+    {
+      "id": "RMDU-API-011",
+      "title": "Close the Backend Depth Gaps Found by the Feature Audit",
+      "status": "done",
+      "owner": "Meet Rabadiya",
+      "started": "2026-10-29",
+      "finished": "2026-10-29",
+      "log": "main:b635ac8",
+      "design_match": "yes",
+      "verified": true,
+      "pushed": false,
+      "key_decisions": [
+        "The audit compared every storefront feature against the route table: the five categories, device detail, compare, quiz recommendations, price alerts, shopkeeper cards, AI chat and the admin console were already covered, so only reachable-but-shallow paths were built",
+        "GET /admin/devices deliberately carries no implicit is_active filter (the storefront route pins is_active=true), otherwise the console could never find the draft it is about to publish",
+        "GET /compare/{session_id} rebuilds the matrix through the current engine instead of replaying a stored snapshot, so a re-opened link cannot contradict live prices, scores or weights; signed-in sessions stay owner-gated while anonymous ones remain capability URLs",
+        "Editing a review resets is_approved to false in the same write, so a published rating cannot change behind the moderator's back",
+        "/devices/suggest is declared before /devices/{identifier}: FastAPI matches in declaration order and the path parameter would otherwise swallow the literal route",
+        "main.py now declares openapi_tags for all ten routers, and /categories/{identifier}/meta is documented again (it was include_in_schema=False) because the frontend's thin-page noindex rule depends on that count"
+      ],
+      "follow_ups": [
+        "Review edit/delete are owner-gated and only proven through their 401 gate: the QA flow holds an admin key, not a Supabase user JWT, so a real author round trip still needs a signed-in account",
+        "The typeahead uses ilike on name and slug; the trigram index serves it, but a dedicated suggest RPC would cut the wildcard cost once the catalog grows"
       ]
     },
     {
