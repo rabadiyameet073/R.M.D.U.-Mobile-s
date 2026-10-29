@@ -27,6 +27,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from core.config import settings  # noqa: E402
 
 GREEN, RED, DIM, RESET = "\033[92m", "\033[91m", "\033[2m", "\033[0m"
+
+# A Windows console defaults to a legacy code page; one unencodable character in
+# a log line would otherwise abort the run before `finally` could clean up.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except Exception:  # noqa: BLE001 - not every stream supports it
+    pass
 results: List[tuple[bool, str, str]] = []
 
 
