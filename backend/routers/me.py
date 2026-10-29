@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, Query, Response, status
 from core.db import db
 from core.deps import CurrentUser, get_current_user, require_feature
 from core.errors import APIError
+from core.ratelimit import USER_MUTATION
 from core.utils import as_float, identifier_filters, offset_for, pagination_meta
 from schemas.catalog import ReviewOut
 from schemas.common import Page
@@ -30,8 +31,11 @@ from services.catalog_service import cards_by_ids, device_select, shape_device
 from services.recommendation_engine import cached_for_user, recommend_for_user
 from services.user_service import (
     PROFILE_COLUMNS,
+    USER_COLUMNS,
     ensure_user,
+    get_profile,
     serialize_profile,
+    token_identity,
     user_stats,
 )
 
@@ -56,16 +60,31 @@ async def _resolve_device(identifier: str) -> dict:
 
 @router.get("", response_model=MeOut, summary="Profile, user record and activity counts")
 async def me(user: CurrentUser = Depends(get_current_user)) -> dict:
-    user_row, profile_row = await ensure_user(user)
+    """Read-only on purpose.
+
+    `get_current_user` has already validated the token, so an account whose
+    mirror row has not been created yet gets its identity from the token and a
+    default profile instead of a write. Provisioning then happens on the first
+    mutation, which keeps a page load working while the database is read-only.
+    """
+    user_row = await db.select_one(
+        "users", columns=USER_COLUMNS, filters={"id": f"eq.{user.id}"}
+    )
+    profile_row = await get_profile(user.id)
     stats = await user_stats(user.id)
     return {
-        "user": user_row,
-        "profile": serialize_profile(profile_row),
+        "user": user_row or token_identity(user),
+        "profile": serialize_profile(profile_row or {}),
         "stats": stats,
     }
 
 
-@router.patch("/profile", response_model=ProfileOut, summary="Update taste profile")
+@router.patch(
+    "/profile",
+    response_model=ProfileOut,
+    dependencies=[Depends(USER_MUTATION)],
+    summary="Update taste profile",
+)
 async def update_profile(
     payload: ProfileUpdate, user: CurrentUser = Depends(get_current_user)
 ) -> dict:
@@ -144,6 +163,7 @@ async def phone_history(
     "/history",
     response_model=PhoneHistoryOut,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(USER_MUTATION)],
     summary="Add a phone to the user's history",
 )
 async def add_phone_history(
@@ -171,6 +191,7 @@ async def add_phone_history(
     status_code=status.HTTP_204_NO_CONTENT,
     response_class=Response,
     response_model=None,
+    dependencies=[Depends(USER_MUTATION)],
 )
 async def delete_phone_history(
     entry_id: str, user: CurrentUser = Depends(get_current_user)
@@ -223,7 +244,7 @@ async def list_price_alerts(
     "/price-alerts",
     response_model=PriceAlertOut,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(require_feature("feature_price_alerts"))],
+    dependencies=[Depends(USER_MUTATION), Depends(require_feature("feature_price_alerts"))],
     summary="Create or update a price alert",
 )
 async def upsert_price_alert(
@@ -250,6 +271,7 @@ async def upsert_price_alert(
     status_code=status.HTTP_204_NO_CONTENT,
     response_class=Response,
     response_model=None,
+    dependencies=[Depends(USER_MUTATION)],
 )
 async def delete_price_alert(
     alert_id: str, user: CurrentUser = Depends(get_current_user)
@@ -364,6 +386,7 @@ async def my_recommendations(
 @router.post(
     "/recommendations",
     response_model=RecommendationResponse,
+    dependencies=[Depends(USER_MUTATION)],
     summary="Regenerate recommendations from my profile",
 )
 async def regenerate_recommendations(

@@ -41,6 +41,29 @@ def serialize_profile(row: dict) -> dict:
     }
 
 
+def token_identity(user: CurrentUser) -> dict:
+    """The `public.users` shape as proven by the verified token.
+
+    Read endpoints use this when the mirror row is absent — for example while
+    the database is read-only and `ensure_user` cannot insert. Nothing here is
+    invented: name, email, avatar and provider come from the token GoTrue has
+    already validated, and the remaining fields are the documented defaults for
+    a fresh account.
+    """
+    return {
+        "id": user.id,
+        "name": user.name or (user.email.split("@")[0] if user.email else "Customer"),
+        "email": user.email or "",
+        "avatar_url": user.avatar_url,
+        "role": "user",
+        "is_active": True,
+        "is_verified": bool(user.email),
+        "auth_provider": user.provider or "email",
+        "created_at": None,
+        "last_login_at": None,
+    }
+
+
 async def ensure_user(user: CurrentUser) -> Tuple[dict, dict]:
     """Guarantee a `public.users` + `user_profiles` row for this auth subject."""
     user_row = await db.select_one(

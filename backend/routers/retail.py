@@ -8,10 +8,10 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query, Response, status
 
-from core.db import db
+from core.db import DataAccessError, db
 from core.deps import CurrentUser, get_current_user, require_feature
 from core.errors import APIError
-from core.ratelimit import CARD_CREATE, CARD_LOOKUP
+from core.ratelimit import CARD_CREATE, CARD_LOOKUP, USER_MUTATION
 from core.utils import identifier_filters, offset_for, pagination_meta
 from schemas.common import Page
 from schemas.user import PublicShopkeeperCardOut, ShopkeeperCardCreate, ShopkeeperCardOut
@@ -25,6 +25,13 @@ router = APIRouter(prefix="/retail", tags=["retail"])
 
 CARD_COLUMNS = (
     "id,user_id,device_id,short_code,reason_summary,avoid_summary,budget_note,"
+    "expires_at,view_count,created_at"
+)
+
+#: Public projection: the owner column is absent from the SELECT itself, so no
+#: masking step can forget it.
+PUBLIC_CARD_COLUMNS = (
+    "id,device_id,short_code,reason_summary,avoid_summary,budget_note,"
     "expires_at,view_count,created_at"
 )
 
@@ -63,6 +70,23 @@ async def _hydrate(cards: List[dict]) -> List[dict]:
     return payload
 
 
+async def _read_only_card(code: str) -> dict:
+    """Load one card without counting the view.
+
+    Used when the counter RPC cannot run — a read-only database, a revoked
+    write grant, or a deployment without migration 08. A shared link is a read
+    for the visitor, so it must still resolve.
+    """
+    row = await db.select_one(
+        "shopkeeper_cards",
+        columns=PUBLIC_CARD_COLUMNS,
+        filters={"short_code": f"eq.{code}"},
+    )
+    if not row:
+        raise APIError(404, "card_not_found", f"No shopkeeper card matches '{code}'.")
+    return {**row, "user_id": None, "is_expired": _is_expired(row.get("expires_at"))}
+
+
 @router.get(
     "/cards/{short_code}",
     response_model=PublicShopkeeperCardOut,
@@ -76,13 +100,22 @@ async def public_card(short_code: str) -> dict:
     two simultaneous lookups stored one view. `fn_increment_card_view` does the
     increment and the projection in one UPDATE: the count returned is the count
     stored, and the row it returns never contains the owner.
+
+    The counter is a write; the lookup is not. When the database is read-only
+    (or the migration is missing) the card is served from a plain SELECT with
+    the stored count, because a visitor opening a shared link must not receive
+    an error page for a counter they never asked about.
     """
     code = short_code.strip().upper()
-    result = await call_rpc(
-        "fn_increment_card_view",
-        {"p_short_code": code},
-        feature="Shopkeeper card lookup",
-    )
+    try:
+        result = await call_rpc(
+            "fn_increment_card_view",
+            {"p_short_code": code},
+            feature="Shopkeeper card lookup",
+        )
+    except (APIError, DataAccessError) as exc:
+        logger.warning("card view counter unavailable (%s); serving the card read-only", exc)
+        return (await _hydrate([await _read_only_card(code)]))[0]
     if result.get("status") != "ok" or not result.get("card"):
         raise APIError(404, "card_not_found", f"No shopkeeper card matches '{code}'.")
     card = {**result["card"], "user_id": None, "is_expired": result.get("is_expired")}
@@ -151,6 +184,7 @@ async def list_my_cards(
     status_code=status.HTTP_204_NO_CONTENT,
     response_class=Response,
     response_model=None,
+    dependencies=[Depends(USER_MUTATION)],
 )
 async def delete_card(card_id: str, user: CurrentUser = Depends(get_current_user)) -> None:
     card = await db.select_one(

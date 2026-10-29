@@ -14,6 +14,9 @@ Usage
 
 Connection string: DATABASE_URL, else DATABASE_POOLED_URL — from the environment,
 then from the repository `.env`. The password is never printed.
+
+`DB_READ_ONLY=true` (the same switch the API honours) makes every non-`--check`
+run refuse to connect, so the database cannot be changed by accident.
 """
 
 from __future__ import annotations
@@ -53,6 +56,25 @@ EXPECTED = [
     ("fn_vote_review_helpful",       "public", "fn_vote_review_helpful", "function"),
     ("fn_remove_category_member",    "public", "fn_remove_category_member", "function"),
     ("fn_rerank_category_batch",     "public", "fn_rerank_category_batch", "function"),
+    # Migration 09: storefront copy lives in the database, not the bundle.
+    ("categories.subtitle",          "public", "categories.subtitle",        "col"),
+    ("categories.highlights",        "public", "categories.highlights",      "col"),
+    ("categories.hero_video_url",    "public", "categories.hero_video_url",  "col"),
+    ("categories.cover_image_url",   "public", "categories.cover_image_url", "col"),
+    ("categories.updated_at",        "public", "categories.updated_at",      "col"),
+    ("site_settings",                "public", "site_settings",              "table"),
+    ("idx_site_settings_public",     "public", "idx_site_settings_public",   "index"),
+    ("fn_touch_site_copy",           "public", "fn_touch_site_copy",         "function"),
+    # Migration 10: RLS hardening (privilege escalation + moderation bypass).
+    ("fn_guard_user_privileges",     "public", "fn_guard_user_privileges",   "function"),
+    ("trg_guard_user_privileges",    "public", "trg_guard_user_privileges",  "trigger"),
+    ("fn_guard_review_moderation",   "public", "fn_guard_review_moderation", "function"),
+    ("trg_guard_review_moderation",  "public", "trg_guard_review_moderation", "trigger"),
+    ("users: update own display fields", "public", "Users can update own display fields", "policy"),
+    ("reviews: edit own review text",    "public", "Users can edit own review text",      "policy"),
+    # The two policies migration 10 removed. Present again = the hole is back.
+    ("users: update own record",     "public", "Users can update own record", "no_policy"),
+    ("cards: public dump policy",    "public", "Public can view cards by short_code", "no_policy"),
 ]
 
 PROBES = {
@@ -62,6 +84,15 @@ PROBES = {
              WHERE table_schema = %(schema)s
                AND table_name   = %(name)s
                AND column_name  = 'version'
+        )
+    """,
+    # `name` arrives as "table.column" so a single row can pin one column.
+    "col": """
+        SELECT EXISTS (
+            SELECT 1 FROM information_schema.columns
+             WHERE table_schema = %(schema)s
+               AND table_name   = split_part(%(name)s, '.', 1)
+               AND column_name  = split_part(%(name)s, '.', 2)
         )
     """,
     "table": """
@@ -93,6 +124,19 @@ PROBES = {
             SELECT 1 FROM pg_constraint c
               JOIN pg_namespace n ON n.oid = c.connamespace
              WHERE n.nspname = %(schema)s AND c.conname = %(name)s
+        )
+    """,
+    "policy": """
+        SELECT EXISTS (
+            SELECT 1 FROM pg_policies
+             WHERE schemaname = %(schema)s AND policyname = %(name)s
+        )
+    """,
+    # Inverted probe: a present policy here means a closed hole was reopened.
+    "no_policy": """
+        SELECT NOT EXISTS (
+            SELECT 1 FROM pg_policies
+             WHERE schemaname = %(schema)s AND policyname = %(name)s
         )
     """,
 }
@@ -220,7 +264,9 @@ def check(conn: psycopg.Connection) -> bool:
         print(f"{len(missing)} object(s) missing: {', '.join(missing)}")
         print("Apply, in order: database/06_fix_category_rank_trigger.sql, "
               "database/07_concurrency_holds_and_versions.sql, "
-              "database/08_atomic_counters_votes_and_dense_ranks.sql.")
+              "database/08_atomic_counters_votes_and_dense_ranks.sql, "
+              "database/09_storefront_copy_and_site_settings.sql, "
+              "database/10_rls_hardening.sql.")
         return False
     print("all expected objects present")
     return True
@@ -243,6 +289,19 @@ def main(argv: list[str]) -> int:
     if not argv or argv[0] in ("-h", "--help"):
         print(__doc__)
         return 0
+
+    if argv[0] != "--check" and os.getenv("DB_READ_ONLY", "").strip().lower() in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    ):
+        print(
+            "DB_READ_ONLY is set: this database must not be changed. "
+            "Nothing was connected to or applied. Unset it to run a migration; "
+            "`--check` stays available because it only reads."
+        )
+        return 1
 
     with connect() as conn:
         if argv[0] == "--check":

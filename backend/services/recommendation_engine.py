@@ -8,14 +8,17 @@ pick can never be justified by raw specs alone.
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
 
-from core.db import db
+from core.db import DataAccessError, db
 from core.errors import APIError
 from core.utils import as_float, in_filter
 from schemas.recommendation import RecommendationRequest
 from services.catalog_service import device_select, shape_device
+
+logger = logging.getLogger("rmdu.recommendations")
 
 ENGINE_VERSION = "v2.1-api"
 PRIORITY_KEYS = ("performance", "camera", "battery", "display", "value", "build", "software")
@@ -277,27 +280,34 @@ async def recommend(
     }
 
 
-async def persist_recommendations(user_id: str, items: List[dict]) -> None:
+async def persist_recommendations(user_id: str, items: List[dict]) -> bool:
     """Replace the cached recommendation set for a user.
 
     The cache is derived data, so a replace is safe; ranking is recomputed from
-    live scores on every generation.
+    live scores on every generation. Storage is best-effort: the answer is
+    already computed, and a read-only database must not turn a recommendation
+    request into an error just because the cache row could not be written.
     """
-    await db.delete("recommendations", {"user_id": f"eq.{user_id}"})
-    rows = [
-        {
-            "user_id": user_id,
-            "device_id": item["device"]["id"],
-            "match_score": item["match_score"],
-            "reason": item["reason"],
-            "rank": item["rank"],
-            "engine_version": ENGINE_VERSION,
-            "is_ai_generated": False,
-        }
-        for item in items
-    ]
-    if rows:
-        await db.insert("recommendations", rows)
+    try:
+        await db.delete("recommendations", {"user_id": f"eq.{user_id}"})
+        rows = [
+            {
+                "user_id": user_id,
+                "device_id": item["device"]["id"],
+                "match_score": item["match_score"],
+                "reason": item["reason"],
+                "rank": item["rank"],
+                "engine_version": ENGINE_VERSION,
+                "is_ai_generated": False,
+            }
+            for item in items
+        ]
+        if rows:
+            await db.insert("recommendations", rows)
+    except DataAccessError as exc:
+        logger.warning("recommendation cache not stored for %s: %s", user_id, exc)
+        return False
+    return True
 
 
 async def recommend_for_user(user_id: str, limit: int = 5) -> Optional[dict]:
