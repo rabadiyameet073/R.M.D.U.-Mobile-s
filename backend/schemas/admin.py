@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import json
 from datetime import date, datetime
 from typing import Any, Dict, List, Literal, Optional
 
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 
 from schemas.catalog import ScoreOut, SpecsOut
 from schemas.common import APIModel
@@ -218,22 +219,71 @@ class CategoryCreate(APIModel):
     name: str = Field(min_length=1, max_length=60)
     slug: Optional[str] = Field(default=None, max_length=80)
     description: Optional[str] = Field(default=None, max_length=2000)
+    # Display copy rendered by the storefront (migration 09).
+    subtitle: Optional[str] = Field(default=None, max_length=160)
+    highlights: List[str] = Field(default_factory=list, max_length=12)
+    hero_video_url: Optional[str] = Field(default=None, max_length=500)
+    cover_image_url: Optional[str] = Field(default=None, max_length=500)
     icon: Optional[str] = Field(default=None, max_length=50)
     color_hex: Optional[str] = Field(default=None, pattern=r"^#[0-9A-Fa-f]{6}$")
     display_order: int = Field(default=0, ge=0, le=999)
     is_active: bool = True
+
+    @field_validator("highlights")
+    @classmethod
+    def _clean_highlights(cls, value: Optional[List[str]]):
+        if value is None:
+            return None
+        return [item.strip()[:120] for item in value if item and item.strip()][:12]
+
+    @field_validator("hero_video_url", "cover_image_url")
+    @classmethod
+    def _safe_media_url(cls, value: Optional[str]):
+        # A media URL is written into a <video>/<img> src; only relative paths
+        # and http(s) URLs are accepted so `javascript:` cannot be stored.
+        if value is None or not value.strip():
+            return None
+        candidate = value.strip()
+        if candidate.startswith("/") and not candidate.startswith("//"):
+            return candidate
+        if candidate.startswith(("http://", "https://")):
+            return candidate
+        raise ValueError("must be an http(s) URL or a site-relative path beginning with '/'")
 
 
 class CategoryUpdate(APIModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=60)
     slug: Optional[str] = Field(default=None, max_length=80)
     description: Optional[str] = Field(default=None, max_length=2000)
+    subtitle: Optional[str] = Field(default=None, max_length=160)
+    highlights: Optional[List[str]] = Field(default=None, max_length=12)
+    hero_video_url: Optional[str] = Field(default=None, max_length=500)
+    cover_image_url: Optional[str] = Field(default=None, max_length=500)
     icon: Optional[str] = Field(default=None, max_length=50)
     color_hex: Optional[str] = Field(default=None, pattern=r"^#[0-9A-Fa-f]{6}$")
     display_order: Optional[int] = Field(default=None, ge=0, le=999)
     is_active: Optional[bool] = None
     # Expected revision, not a value to write (409 when someone else wrote first).
     version: Optional[int] = Field(default=None, ge=1)
+
+    @field_validator("highlights")
+    @classmethod
+    def _clean_highlights(cls, value: Optional[List[str]]):
+        if value is None:
+            return None
+        return [item.strip()[:120] for item in value if item and item.strip()][:12]
+
+    @field_validator("hero_video_url", "cover_image_url")
+    @classmethod
+    def _safe_media_url(cls, value: Optional[str]):
+        if value is None or not value.strip():
+            return None
+        candidate = value.strip()
+        if candidate.startswith("/") and not candidate.startswith("//"):
+            return candidate
+        if candidate.startswith(("http://", "https://")):
+            return candidate
+        raise ValueError("must be an http(s) URL or a site-relative path beginning with '/'")
 
 
 class CategoryOrderRequest(APIModel):
@@ -297,3 +347,62 @@ class AdminUserUpdate(APIModel):
     role: Optional[Literal["user", "admin", "editor"]] = None
     is_active: Optional[bool] = None
     is_verified: Optional[bool] = None
+
+
+# ── site copy ──────────────────────────────────────────────────
+# `site_settings` holds one JSON document per section (hero, nav, footer). The
+# console edits the whole document, so the only shape rules are: a container
+# (object or array) and a bounded size.
+
+SITE_SETTING_KEY_PATTERN = r"^[a-z][a-z0-9_]{1,79}$"
+MAX_SETTING_BYTES = 20_000
+
+
+class SiteSettingCreate(APIModel):
+    key: str = Field(pattern=SITE_SETTING_KEY_PATTERN)
+    value: Any
+    description: Optional[str] = Field(default=None, max_length=500)
+    is_public: bool = True
+
+    @field_validator("value")
+    @classmethod
+    def _container(cls, value: Any) -> Any:
+        if not isinstance(value, (dict, list)):
+            raise ValueError("value must be a JSON object or array")
+        if len(json.dumps(value)) > MAX_SETTING_BYTES:
+            raise ValueError(f"value must be smaller than {MAX_SETTING_BYTES} bytes of JSON")
+        return value
+
+
+class SiteSettingUpdate(APIModel):
+    value: Optional[Any] = None
+    description: Optional[str] = Field(default=None, max_length=500)
+    is_public: Optional[bool] = None
+    # Expected revision, not a value to write (409 when someone else wrote first).
+    version: Optional[int] = Field(default=None, ge=1)
+
+    @field_validator("value")
+    @classmethod
+    def _container(cls, value: Any) -> Any:
+        if value is None:
+            return None
+        if not isinstance(value, (dict, list)):
+            raise ValueError("value must be a JSON object or array")
+        if len(json.dumps(value)) > MAX_SETTING_BYTES:
+            raise ValueError(f"value must be smaller than {MAX_SETTING_BYTES} bytes of JSON")
+        return value
+
+
+class SiteSettingOut(APIModel):
+    id: str
+    key: str
+    value: Any = None
+    description: Optional[str] = None
+    is_public: bool = True
+    version: int = 1
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+
+class SiteSettingsOut(APIModel):
+    items: List[SiteSettingOut] = Field(default_factory=list)

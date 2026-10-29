@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import Field, field_validator, model_validator
 
-from schemas.common import APIModel
+from schemas.common import APIModel, PaginationMeta
 
 
 class BrandRef(APIModel):
@@ -103,11 +103,24 @@ class CategoryOut(APIModel):
     name: str
     slug: str
     description: Optional[str] = None
+    # Admin-authored display copy (migration 09). Absent on older databases,
+    # which is why every field here is optional.
+    subtitle: Optional[str] = None
+    hero_video_url: Optional[str] = None
+    cover_image_url: Optional[str] = None
+    highlights: List[str] = Field(default_factory=list)
     icon: Optional[str] = None
     color_hex: Optional[str] = None
     display_order: int = 0
     is_active: bool = True
     device_count: Optional[int] = None
+
+    @field_validator("highlights", mode="before")
+    @classmethod
+    def _null_highlights_to_empty(cls, value):
+        if isinstance(value, str):
+            return [value] if value.strip() else []
+        return value or []
 
 
 class ProsConsOut(APIModel):
@@ -208,6 +221,7 @@ class RankedDeviceOut(APIModel):
 class CategoryDetail(CategoryOut):
     devices: List[RankedDeviceOut] = Field(default_factory=list)
     ranking_mode: str = "manual"
+    meta: Optional[PaginationMeta] = None
 
 
 class DeviceSuggestion(APIModel):

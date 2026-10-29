@@ -10,12 +10,50 @@ from __future__ import annotations
 import asyncio
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from core.db import db
+from core.db import DataAccessError, db
 from core.errors import APIError
 from core.utils import as_float, identifier_filters, in_filter, is_uuid, pagination_meta, slugify
 from schemas.catalog import ReviewsSummary
 
 BRAND_COLUMNS = "id,name,logo_url,country,is_active,created_at"
+
+CATEGORY_COLUMNS = "id,name,slug,description,icon,color_hex,display_order,is_active,created_at"
+
+# Display copy added by migration 09. A deployment that has not applied it yet
+# keeps serving the catalog; the copy fields simply stay absent.
+CATEGORY_COPY_COLUMNS = "subtitle,hero_video_url,cover_image_url,highlights"
+_category_copy_state: Optional[bool] = None
+_category_copy_lock = asyncio.Lock()
+
+
+async def category_copy_available() -> bool:
+    """Whether this database has the migration-09 category copy columns.
+
+    Probed once per process, on first use, by every reader and writer that
+    touches a category. The previous design learned the answer only from a
+    failed wide read, so which routes worked depended on request order: a cold
+    process answered `POST /admin/categories` and `GET /site/categories/{slug}`
+    with a raw `400 column categories.subtitle does not exist` until something
+    else had warmed the flag.
+    """
+    global _category_copy_state
+    if _category_copy_state is not None:
+        return _category_copy_state
+    async with _category_copy_lock:
+        if _category_copy_state is None:
+            try:
+                await db.select("categories", columns=CATEGORY_COPY_COLUMNS, limit=1)
+                _category_copy_state = True
+            except DataAccessError:
+                _category_copy_state = False
+    return _category_copy_state
+
+
+async def category_projection() -> str:
+    """Column list for a category read/write that matches this deployment."""
+    if await category_copy_available():
+        return f"{CATEGORY_COLUMNS},{CATEGORY_COPY_COLUMNS}"
+    return CATEGORY_COLUMNS
 
 SPEC_COLUMNS = (
     "processor_name,processor_brand,process_node,cpu_cores,cpu_max_freq_ghz,gpu_name,"
@@ -43,18 +81,61 @@ CATEGORY_JOIN_COLUMNS = (
 )
 
 
+async def load_active_categories() -> List[dict]:
+    """Active categories in display order, including the admin-authored copy."""
+    columns = await category_projection()
+    result = await db.select(
+        "categories",
+        columns=columns,
+        filters={"is_active": "is.true"},
+        order="display_order.asc",
+        limit=50,
+    )
+    return result.rows
+
+
+def category_columns() -> str:
+    """Synchronous projection, for callers that already awaited the probe.
+
+    Prefer `category_projection()`: it proves the columns exist first. This one
+    is only a convenience for code that runs after `category_copy_available()`.
+    """
+    if _category_copy_state is False:
+        return CATEGORY_COLUMNS
+    return f"{CATEGORY_COLUMNS},{CATEGORY_COPY_COLUMNS}"
+
+
+def supports_category_copy() -> bool:
+    """Whether the copy columns are readable (`False` once proven absent)."""
+    return _category_copy_state is not False
+
+
+def note_missing_category_copy() -> None:
+    """Record that a copy-column read failed, so later reads stop asking for it.
+
+    The admin surface calls this after its own failed projection attempt, which
+    means the flag is learned by whichever surface reads first.
+    """
+    global _category_copy_state
+    _category_copy_state = False
+
+
 async def resolve_brand(identifier: str) -> Optional[dict]:
-    """Resolve a brand from a UUID, exact name, or slugified name.
+    """Resolve an *active* brand from a UUID, exact name, or slugified name.
 
     `brands` has no slug column, and brand names contain spaces, so the fallback
     compares in Python over a bounded list instead of building an `or=` filter
-    that would break on punctuation.
+    that would break on punctuation. A deactivated brand stops resolving, so its
+    page and its device list disappear the same way a deactivated category does.
     """
+    active = {"is_active": "is.true"}
     if is_uuid(identifier):
         return await db.select_one(
-            "brands", columns=BRAND_COLUMNS, filters={"id": f"eq.{identifier}"}
+            "brands", columns=BRAND_COLUMNS, filters={"id": f"eq.{identifier}", **active}
         )
-    result = await db.select("brands", columns=BRAND_COLUMNS, order="name.asc", limit=500)
+    result = await db.select(
+        "brands", columns=BRAND_COLUMNS, filters=active, order="name.asc", limit=500
+    )
     wanted = slugify(identifier)
     lowered = identifier.strip().lower()
     for row in result.rows:
@@ -220,8 +301,18 @@ async def fetch_devices(
     )
 
 
-async def get_device_row(identifier: str, *, detail: bool = True) -> dict:
+async def get_device_row(
+    identifier: str, *, detail: bool = True, active_only: bool = False
+) -> dict:
+    """One device by uuid or slug.
+
+    `active_only` is what public routes pass: a deactivated device must not stay
+    reachable through a saved direct link, even though the console still has to
+    load it to edit or restore.
+    """
     filters = identifier_filters(identifier)
+    if active_only:
+        filters["is_active"] = "is.true"
     select = device_select(detail=detail)
     if detail:
         filters.update(detail_filters())
@@ -231,8 +322,10 @@ async def get_device_row(identifier: str, *, detail: bool = True) -> dict:
     return row
 
 
-async def get_device(identifier: str, *, detail: bool = True) -> dict:
-    row = await get_device_row(identifier, detail=detail)
+async def get_device(
+    identifier: str, *, detail: bool = True, active_only: bool = False
+) -> dict:
+    row = await get_device_row(identifier, detail=detail, active_only=active_only)
     payload = shape_device(row, detail=detail)
     if detail:
         payload["reviews_summary"] = (await reviews_summary(payload["id"])).model_dump()
@@ -291,18 +384,12 @@ async def category_device_count(category_id: str) -> int:
 
 
 async def categories_with_counts() -> List[dict]:
-    result = await db.select(
-        "categories",
-        columns="id,name,slug,description,icon,color_hex,display_order,is_active,created_at",
-        filters={"is_active": "is.true"},
-        order="display_order.asc",
-        limit=50,
-    )
+    rows = await load_active_categories()
     counts = await asyncio.gather(
-        *(category_device_count(row["id"]) for row in result.rows), return_exceptions=True
+        *(category_device_count(row["id"]) for row in rows), return_exceptions=True
     )
     payload = []
-    for row, count in zip(result.rows, counts):
+    for row, count in zip(rows, counts):
         row = dict(row)
         row["device_count"] = 0 if isinstance(count, Exception) else count
         payload.append(row)

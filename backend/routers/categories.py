@@ -11,16 +11,24 @@ from core.errors import APIError
 from core.utils import identifier_filters
 from schemas.catalog import CategoryDetail, CategoryOut, RankedDeviceOut
 from schemas.common import Page
-from services.catalog_service import categories_with_counts, ranked_category_devices
+from services.catalog_service import (
+    categories_with_counts,
+    category_projection,
+    ranked_category_devices,
+)
 
 router = APIRouter(prefix="/categories", tags=["categories"])
 
-CATEGORY_COLUMNS = "id,name,slug,description,icon,color_hex,display_order,is_active"
-
 
 async def _resolve_category(identifier: str) -> dict:
+    # The projection is probed, not guessed: it includes the admin-authored copy
+    # when migration 09 is applied, and the base columns when it is not, so the
+    # public category header and the console share one read. Deactivated rows do
+    # not resolve: `DELETE /admin/categories/{id}` is the storefront's delete.
     row = await db.select_one(
-        "categories", columns=CATEGORY_COLUMNS, filters=identifier_filters(identifier)
+        "categories",
+        columns=await category_projection(),
+        filters={**identifier_filters(identifier), "is_active": "is.true"},
     )
     if not row:
         raise APIError(404, "category_not_found", f"No category matches '{identifier}'.")
@@ -47,6 +55,7 @@ async def category_detail(
         **category,
         "device_count": meta["total"],
         "devices": items,
+        "meta": meta,
         "ranking_mode": ranking,
     }
 

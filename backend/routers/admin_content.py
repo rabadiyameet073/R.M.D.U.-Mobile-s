@@ -23,7 +23,7 @@ Two rules shape the writes here:
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, Query, Request, Response, status
 
@@ -31,6 +31,7 @@ from core.db import DataAccessError, db
 from core.deps import require_admin, require_admin_write
 from core.errors import APIError
 from core.ratelimit import ADMIN_MUTATION
+from core.security import client_ip_from_request
 from core.utils import offset_for, pagination_meta, slugify
 from schemas.admin import (
     AdminUserOut,
@@ -46,10 +47,23 @@ from schemas.admin import (
     UssdCreate,
     UssdUpdate,
 )
-from schemas.catalog import CategoryOut, FeatureOut, ProsConsOut, SpecsOut, UssdOut
+from schemas.catalog import (
+    CategoryOut,
+    FeatureOut,
+    ProsConsOut,
+    RankedDeviceOut,
+    SpecsOut,
+    UssdOut,
+)
 from schemas.common import Page
 from services.audit import log_action
-from services.catalog_service import category_device_count, get_device_row
+from services.catalog_service import (
+    category_copy_available,
+    category_device_count,
+    get_device_row,
+    note_missing_category_copy,
+    ranked_category_devices,
+)
 from services.concurrency import call_rpc, interpret_rank
 
 router = APIRouter(
@@ -63,9 +77,13 @@ router = APIRouter(
 # can always inspect what went wrong.
 WRITE = [Depends(require_admin_write), Depends(ADMIN_MUTATION)]
 
-CATEGORY_COLUMNS = (
+CATEGORY_BASE_COLUMNS = (
     "id,name,slug,description,icon,color_hex,display_order,is_active,version,created_at"
 )
+# Display copy the storefront renders (migration 09).
+CATEGORY_COPY_FIELDS = ("subtitle", "highlights", "hero_video_url", "cover_image_url")
+CATEGORY_COLUMNS = f"{CATEGORY_BASE_COLUMNS},{','.join(CATEGORY_COPY_FIELDS)}"
+CATEGORY_MIGRATION = "database/09_storefront_copy_and_site_settings.sql"
 PROS_CONS_COLUMNS = "id,type,description,importance,display_order"
 FEATURE_COLUMNS = "id,feature_name,feature_value,icon,display_order"
 USSD_COLUMNS = "id,device_id,code,description,category,is_universal,created_at"
@@ -75,20 +93,60 @@ USER_COLUMNS = (
 
 
 def _ip(request: Request) -> Optional[str]:
-    if request.client and request.client.host:
-        return request.client.host
-    return None
+    """Caller address as audit rows record it (proxy-aware, never a header)."""
+    return client_ip_from_request(request)
+
+
+async def _category_projection() -> str:
+    """Category columns for this deployment, proven before they are requested."""
+    return CATEGORY_COLUMNS if await category_copy_available() else CATEGORY_BASE_COLUMNS
+
+
+async def _select_category_rows(**kwargs: Any) -> List[dict]:
+    """Read categories with their display copy, falling back if it is absent.
+
+    Migration 09 owns those columns. `category_copy_available()` normally
+    settles the question before the first query; the fallback here covers a
+    database whose shape changed after the probe ran.
+    """
+    try:
+        result = await db.select("categories", columns=await _category_projection(), **kwargs)
+    except DataAccessError:
+        if not await category_copy_available():
+            raise
+        note_missing_category_copy()
+        result = await db.select("categories", columns=CATEGORY_BASE_COLUMNS, **kwargs)
+    return result.rows
+
+
+async def _strip_unavailable_copy(values: Dict[str, Any]) -> Dict[str, Any]:
+    """Refuse a copy-only write on a database without migration 09.
+
+    Dropping the field silently would look like a save that did nothing, so the
+    caller is told which migration enables it.
+    """
+    if await category_copy_available():
+        return values
+    edited = [
+        field
+        for field in CATEGORY_COPY_FIELDS
+        if field in values and values[field] not in (None, "", [])
+    ]
+    if edited:
+        raise APIError(
+            503,
+            "migration_required",
+            f"Category display copy needs {CATEGORY_MIGRATION}.",
+            {"migration": CATEGORY_MIGRATION, "fields": edited},
+        )
+    return {key: value for key, value in values.items() if key not in CATEGORY_COPY_FIELDS}
 
 
 async def _category_or_404(category_id: str) -> dict:
-    row = await db.select_one(
-        "categories",
-        columns=CATEGORY_COLUMNS,
-        filters={"id": f"eq.{category_id}"},
-    )
-    if not row:
+    rows = await _select_category_rows(filters={"id": f"eq.{category_id}"}, limit=1)
+    if not rows:
         raise APIError(404, "category_not_found", "No category with that id.")
-    return row
+    return rows[0]
 
 
 # ── categories ─────────────────────────────────────────────────
@@ -98,19 +156,14 @@ async def _category_or_404(category_id: str) -> dict:
     summary="Every category, including deactivated ones",
 )
 async def list_categories() -> List[dict]:
-    result = await db.select(
-        "categories",
-        columns=CATEGORY_COLUMNS,
-        order="display_order.asc,name.asc",
-        limit=200,
-    )
+    rows = await _select_category_rows(order="display_order.asc,name.asc", limit=200)
     counts = await asyncio.gather(
-        *(category_device_count(row["id"]) for row in result.rows),
+        *(category_device_count(row["id"]) for row in rows),
         return_exceptions=True,
     )
     return [
         {**row, "device_count": 0 if isinstance(count, Exception) else count}
-        for row, count in zip(result.rows, counts)
+        for row, count in zip(rows, counts)
     ]
 
 
@@ -122,10 +175,10 @@ async def list_categories() -> List[dict]:
     summary="Create a category",
 )
 async def create_category(payload: CategoryCreate, request: Request) -> dict:
-    values = payload.model_dump()
+    values = await _strip_unavailable_copy(payload.model_dump())
     values["slug"] = values.get("slug") or slugify(payload.name)
     try:
-        rows = await db.insert("categories", values, columns=CATEGORY_COLUMNS)
+        rows = await db.insert("categories", values, columns=await _category_projection())
     except DataAccessError as exc:
         if exc.status_code == 409:
             raise APIError(
@@ -154,7 +207,7 @@ async def update_category(
     category_id: str, payload: CategoryUpdate, request: Request
 ) -> dict:
     existing = await _category_or_404(category_id)
-    updates = payload.model_dump(exclude_unset=True)
+    updates = await _strip_unavailable_copy(payload.model_dump(exclude_unset=True))
     expected_version = updates.pop("version", None)
     if "slug" in updates and not updates["slug"]:
         updates["slug"] = slugify(updates.get("name") or existing["name"])
@@ -165,7 +218,9 @@ async def update_category(
     if expected_version is not None:
         filters["version"] = f"eq.{expected_version}"
     try:
-        rows = await db.update("categories", filters, updates, columns=CATEGORY_COLUMNS)
+        rows = await db.update(
+            "categories", filters, updates, columns=await _category_projection()
+        )
     except DataAccessError as exc:
         if exc.status_code == 409:
             raise APIError(
@@ -216,7 +271,7 @@ async def deactivate_category(category_id: str, request: Request) -> dict:
         "categories",
         {"id": f"eq.{category_id}"},
         {"is_active": False},
-        columns=CATEGORY_COLUMNS,
+        columns=await _category_projection(),
     )
     await log_action(
         "category.deactivate",
@@ -262,6 +317,31 @@ async def reorder_category(
         "applied": applied.get("applied", 0),
         "category_version": applied.get("category_version"),
     }
+
+
+@router.get(
+    "/categories/{category_id}/devices",
+    response_model=Page[RankedDeviceOut],
+    summary="Every member of a category, in rank order",
+)
+async def list_category_members(
+    category_id: str,
+    ranking: Literal["manual", "auto"] = Query(default="manual"),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=100, ge=1, le=200),
+) -> dict:
+    """The members the reorder screen needs, not the storefront page size.
+
+    The console used to read the public category endpoint, whose default page
+    size is 12: any member past the twelfth was invisible to the reorder tool,
+    so a save could shuffle rows nobody had seen. This endpoint answers with the
+    whole membership (bounded at 200) and is the only source the console uses.
+    """
+    category = await _category_or_404(category_id)
+    items, meta = await ranked_category_devices(
+        category, page=page, page_size=page_size, ranking=ranking
+    )
+    return {"items": items, "meta": meta}
 
 
 @router.delete(
@@ -511,13 +591,20 @@ async def _converge_rows(
     summary="USSD codes for one device plus the universal ones",
 )
 async def list_ussd_codes(
-    device_id: Optional[str] = Query(default=None),
+    device_id: Optional[str] = Query(default=None, description="Device UUID or slug"),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=50, ge=1, le=200),
 ) -> dict:
+    """Codes for one device plus the universal ones.
+
+    The identifier is resolved to a row first. Interpolating the query string
+    straight into the `or=` expression would let a caller close the group and
+    append filters of their own, and would fail outright on a slug.
+    """
     filters: Dict[str, str] = {}
     if device_id:
-        filters["or"] = f"(device_id.eq.{device_id},device_id.is.null)"
+        device = await get_device_row(device_id, detail=False)
+        filters["or"] = f"(device_id.eq.{device['id']},device_id.is.null)"
     else:
         filters["device_id"] = "is.null"
     result = await db.select(
