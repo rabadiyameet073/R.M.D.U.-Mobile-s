@@ -8,10 +8,11 @@ a weighted scoreboard using the same rules the recommender uses.
 from __future__ import annotations
 
 import asyncio
+import logging
 from datetime import date, datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
-from core.db import db
+from core.db import DataAccessError, db
 from core.utils import as_float
 from services.catalog_service import get_device_row, shape_device
 from services.recommendation_engine import (
@@ -20,6 +21,8 @@ from services.recommendation_engine import (
     blended_weights,
     load_rules,
 )
+
+logger = logging.getLogger("rmdu.compare")
 
 # (key, label, group, source, unit, higher_is_better, formatter)
 ROW_DEFS: List[Tuple[str, str, str, str, Optional[str], Optional[bool], str]] = [
@@ -257,8 +260,13 @@ async def compare_devices(
     rules = await load_rules()
     weights, used_priorities = blended_weights(rules, priority, None)
 
+    # Public surface: a deactivated device must not be comparable by a saved
+    # link, so an inactive identifier answers 404 device_not_found here too.
     rows = await asyncio.gather(
-        *(get_device_row(identifier, detail=False) for identifier in identifiers)
+        *(
+            get_device_row(identifier, detail=False, active_only=True)
+            for identifier in identifiers
+        )
     )
     cards = [shape_device(row) for row in rows]
 
@@ -268,15 +276,21 @@ async def compare_devices(
 
     session_id: Optional[str] = None
     if save_session:
-        inserted = await db.insert(
-            "comparison_sessions",
-            {
-                "user_id": user_id,
-                "device_ids": [card["id"] for card in cards],
-                "winner_device_id": winner_device_id,
-            },
-        )
-        session_id = inserted[0]["id"] if inserted else None
+        try:
+            inserted = await db.insert(
+                "comparison_sessions",
+                {
+                    "user_id": user_id,
+                    "device_ids": [card["id"] for card in cards],
+                    "winner_device_id": winner_device_id,
+                },
+            )
+            session_id = inserted[0]["id"] if inserted else None
+        except DataAccessError as exc:
+            # The matrix is already computed; the session row only powers a
+            # re-openable share link. A read-only database must not turn a
+            # comparison into an error, so the result is returned without one.
+            logger.warning("comparison session not stored: %s", exc)
 
     return {
         "session_id": session_id,

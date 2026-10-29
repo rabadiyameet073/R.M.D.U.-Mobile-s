@@ -12,6 +12,7 @@ from core.db import DataAccessError, db
 from core.deps import CurrentUser, get_current_user, require_feature
 from core.errors import APIError
 from core.ratelimit import REVIEW_WRITE
+from core.security import client_ip_from_request
 from core.utils import (
     as_float,
     clean_search_term,
@@ -38,6 +39,7 @@ from services.catalog_service import (
     device_select,
     get_device,
     get_device_row,
+    resolve_brand,
     shape_device,
     universal_ussd_codes,
 )
@@ -106,10 +108,12 @@ async def list_devices(
     if term:
         filters["or"] = f"(name.ilike.*{term}*,slug.ilike.*{term}*)"
     if brand:
-        if is_uuid(brand):
-            filters["brands.id"] = f"eq.{brand}"
-        else:
-            filters["brands.slug"] = f"eq.{slugify(brand)}"
+        # `brands` has no slug column, so a name has to be resolved to its id
+        # first; filtering on a column that does not exist fails the query.
+        resolved = await resolve_brand(brand)
+        if not resolved:
+            return {"items": [], "meta": pagination_meta(page, page_size, 0)}
+        filters["brands.id"] = f"eq.{resolved['id']}"
         inner_brand = True
     if category:
         device_ids = await _device_ids_in_category(category)
@@ -228,7 +232,7 @@ async def suggest_devices(
 
 @router.get("/{identifier}", response_model=DeviceDetail, summary="Get full device detail")
 async def device_detail(identifier: str) -> dict:
-    return await get_device(identifier, detail=True)
+    return await get_device(identifier, detail=True, active_only=True)
 
 
 @router.get("/{identifier}/similar", response_model=List[DeviceCard])
@@ -236,7 +240,7 @@ async def similar_devices(
     identifier: str,
     limit: int = Query(default=4, ge=1, le=12),
 ) -> List[dict]:
-    device = shape_device(await get_device_row(identifier, detail=False))
+    device = shape_device(await get_device_row(identifier, detail=False, active_only=True))
     price = device["price"] or 0
     filters = {
         "is_active": "is.true",
@@ -276,7 +280,7 @@ async def similar_devices(
 
 @router.get("/{identifier}/ussd-codes", response_model=List[UssdOut])
 async def device_ussd_codes(identifier: str) -> List[dict]:
-    device = await get_device_row(identifier, detail=True)
+    device = await get_device_row(identifier, detail=True, active_only=True)
     return (device.get("device_ussd_codes") or []) + await universal_ussd_codes()
 
 
@@ -287,7 +291,13 @@ async def list_reviews(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=10, ge=1, le=50),
 ) -> dict:
-    device = await db.select_one("devices", columns="id", filters=identifier_filters(identifier))
+    # A deactivated device is not part of the storefront: its reviews stop being
+    # readable and stop accepting new ones, exactly like its detail page.
+    device = await db.select_one(
+        "devices",
+        columns="id",
+        filters={**identifier_filters(identifier), "is_active": "is.true"},
+    )
     if not device:
         raise APIError(404, "device_not_found", f"No device matches '{identifier}'.")
     order = {
@@ -370,7 +380,7 @@ async def create_review(
         target_type="review",
         target_id=created["id"],
         new_value={"device_id": device["id"], "rating": payload.rating},
-        ip_address=request.client.host if request.client else None,
+        ip_address=client_ip_from_request(request),
         actor_id=user.id,
     )
     return created
@@ -396,7 +406,13 @@ async def update_review(
     re-enters the queue. `verified_owner` is deliberately untouched — ownership
     is a fact about the phone history, not about the words.
     """
-    device = await db.select_one("devices", columns="id", filters=identifier_filters(identifier))
+    # A deactivated device is not part of the storefront: its reviews stop being
+    # readable and stop accepting new ones, exactly like its detail page.
+    device = await db.select_one(
+        "devices",
+        columns="id",
+        filters={**identifier_filters(identifier), "is_active": "is.true"},
+    )
     if not device:
         raise APIError(404, "device_not_found", f"No device matches '{identifier}'.")
     review = await db.select_one(
@@ -440,7 +456,7 @@ async def update_review(
         target_id=review_id,
         old_value={"rating": review.get("rating"), "is_approved": review.get("is_approved")},
         new_value={"rating": updated.get("rating"), "is_approved": False},
-        ip_address=request.client.host if request.client else None,
+        ip_address=client_ip_from_request(request),
         actor_id=user.id,
     )
     return updated
@@ -466,7 +482,13 @@ async def delete_review(
     matches zero rows instead of another person's review. Helpful votes follow
     the row through `review_votes.review_id ... ON DELETE CASCADE`.
     """
-    device = await db.select_one("devices", columns="id", filters=identifier_filters(identifier))
+    # A deactivated device is not part of the storefront: its reviews stop being
+    # readable and stop accepting new ones, exactly like its detail page.
+    device = await db.select_one(
+        "devices",
+        columns="id",
+        filters={**identifier_filters(identifier), "is_active": "is.true"},
+    )
     if not device:
         raise APIError(404, "device_not_found", f"No device matches '{identifier}'.")
     review = await db.select_one(
@@ -484,7 +506,7 @@ async def delete_review(
         target_type="review",
         target_id=review_id,
         old_value={"rating": review.get("rating"), "device_id": device["id"]},
-        ip_address=request.client.host if request.client else None,
+        ip_address=client_ip_from_request(request),
         actor_id=user.id,
     )
 
@@ -508,7 +530,13 @@ async def vote_review_helpful(
     UNIQUE (review_id, voter_id) is the actual guarantee; a repeat vote returns
     `duplicate` with the unchanged count instead of an error.
     """
-    device = await db.select_one("devices", columns="id", filters=identifier_filters(identifier))
+    # A deactivated device is not part of the storefront: its reviews stop being
+    # readable and stop accepting new ones, exactly like its detail page.
+    device = await db.select_one(
+        "devices",
+        columns="id",
+        filters={**identifier_filters(identifier), "is_active": "is.true"},
+    )
     if not device:
         raise APIError(404, "device_not_found", f"No device matches '{identifier}'.")
     review = await db.select_one(
