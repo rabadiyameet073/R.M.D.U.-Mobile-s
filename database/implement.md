@@ -13,11 +13,42 @@ createdb rmdu_mobiles
 sudo apt install postgresql-15-pgvector   # Ubuntu/Debian
 # OR: brew install pgvector               # macOS
 
-# 3. Apply the full schema
-psql -U postgres -d rmdu_mobiles -f mobilemart_schema.sql
+# 3. Apply the schema in numbered order:
+# Step 1: Base Schema (Devices, Specs, Scores, Categories)
+psql -U postgres -d rmdu_mobiles -f 01_mobilemart_schema.sql
+
+# Step 2: Google OAuth Sync, Customer History Tracking & RLS Policies
+psql -U postgres -d rmdu_mobiles -f 02_google_oauth_customer_sync.sql
+
+# Step 3: Normalization Checks, Advanced Composite Indexes & GIN Trigram Search
+psql -U postgres -d rmdu_mobiles -f 03_normalization_and_indexes.sql
+
+# Step 4: Universal RLS Enforcement, 11 Foreign Key Indexes & Domain Checks
+psql -U postgres -d rmdu_mobiles -f 04_complete_rls_and_fk_indexes.sql
+
+# Step 5: Recursion guard for the rank trigger (required — fixes error 54001)
+psql -U postgres -d rmdu_mobiles -f 06_fix_category_rank_trigger.sql
+
+# Step 6: Version columns, transactional re-rank RPC, resource holds, idempotency
+# Apply BEFORE deploying the backend that selects devices.version
+psql -U postgres -d rmdu_mobiles -f 07_concurrency_holds_and_versions.sql
+
+# Step 7: Atomic card views, one-vote-per-account, dense-rank compaction and
+# batch reorder. Apply BEFORE deploying the backend that calls those RPCs.
+psql -U postgres -d rmdu_mobiles -f 08_atomic_counters_votes_and_dense_ranks.sql
+
+# Step 8 (Optional - Demo Testing Only): Sample phones, specs & category rankings
+# NOTE: 05_seed_catalog_phones.sql still targets brands.slug, which the live schema
+# does not have — it aborts on the first INSERT. Seed through POST /admin/brands and
+# POST /admin/devices instead until the seed is reconciled.
+# psql -U postgres -d rmdu_mobiles -f 05_seed_catalog_phones.sql
 
 # 4. Verify
 psql -U postgres -d rmdu_mobiles -c "\dt"
+
+# Or let the backend check itself (names the migration you are missing):
+cd ../backend
+python scripts/apply_sql.py --check
 ```
 
 > [!IMPORTANT]
@@ -84,6 +115,14 @@ psql -U postgres -d rmdu_mobiles -c "\dt"
 | `ai_chat_sessions` | AI chat session tracker | `session_token` |
 | `ai_chat_messages` | Full conversation history | `role`, `content`, `embedding` |
 
+Added by the concurrency and atomicity migrations (not part of the original 24):
+
+| Table | Migration | Purpose | Invariant |
+|---|---|---|---|
+| `resource_holds` | 07 | Expiring claims on a scarce slot | one live (`held`/`confirmed`) row per `resource_key` |
+| `idempotency_requests` | 07 | First response per `(actor_scope, operation, key)` | replayed instead of re-executed |
+| `review_votes` | 08 | One helpful vote per account per review | `UNIQUE (review_id, voter_id)` |
+
 ---
 
 ## Dynamic Ranking System
@@ -110,6 +149,36 @@ SET rank = 1
 WHERE device_id = 'uuid' AND category_id = 'uuid-gaming-guru';
 -- Trigger handles all other shifts automatically
 ```
+
+> [!WARNING]
+> Do not drive a **whole** reorder from the client one `UPDATE` at a time. Each of
+> those statements fights the shift trigger, and the deferrable unique constraint only
+> protects you when the entire permutation lands in one statement. Use the RPCs:
+>
+> ```sql
+> -- Reorder every member of a category in one transaction
+> SELECT fn_rerank_category_batch(
+>     'category-uuid',
+>     ARRAY['device-a-uuid', 'device-b-uuid']::uuid[],
+>     7                          -- expected categories.version, NULL to skip the check
+> );
+>
+> -- Remove one member; the trigger compacts the ranks behind it
+> SELECT fn_remove_category_member('category-uuid', 'device-uuid', 7);
+> ```
+>
+> Both return a JSONB status (`ok`, `version_conflict`, `busy`, `unknown_members`) and
+> write their audit row in the same transaction. The HTTP mapping for each status is
+> documented in `DYNAMIC_DATABASE_API_REFERENCE.md` §8.2.
+
+### What the Trigger Does Now (migrations 06 + 08)
+
+| Event | Behaviour |
+|---|---|
+| `INSERT` / `UPDATE OF rank` | shifts siblings out of the target position |
+| `DELETE` | compacts the gap the deleted row leaves |
+| Own sibling updates | ignored (`pg_trigger_depth() > 1`) — this is what fixed error 54001 |
+| Inside `fn_rerank_category_batch` | suppressed entirely via `set_config('rmdu.rank_shift','off', true)` |
 
 ### Dynamic (Score-Based) Ranking
 
