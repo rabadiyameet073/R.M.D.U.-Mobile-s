@@ -2,25 +2,24 @@
 
 Embeddings live in pgvector, but PostgREST cannot `ORDER BY` a vector column,
 so similarity is computed in-process over the embedding rows (catalog scale).
-When OpenAI is not configured the module degrades to deterministic keyword
-search and template answers — endpoints stay available either way.
+When the provider is not configured the module degrades to deterministic
+keyword search and template answers — endpoints stay available either way.
+
+The outbound call lives in `core.ai_client`; this module only decides what to
+ask and how to score the answer.
 """
 
 from __future__ import annotations
 
 import math
-import os
 from typing import Any, List, Optional, Tuple
 
-import httpx
-
+from core.ai_client import chat_completion, embed_text
 from core.config import settings
 from core.db import db
 from core.utils import clean_search_term
 from services.catalog_service import cards_by_ids
 
-OPENAI_BASE = "https://api.openai.com/v1"
-CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL", "gpt-4o-mini")
 MAX_CONTEXT_DEVICES = 6
 MAX_CONTEXT_CHUNKS = 6
 
@@ -50,61 +49,6 @@ def cosine_similarity(left: List[float], right: List[float]) -> float:
     if norm_left == 0 or norm_right == 0:
         return 0.0
     return dot / (norm_left * norm_right)
-
-
-async def embed_text(text: str) -> Optional[List[float]]:
-    if not settings.ai_enabled:
-        return None
-    try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(
-                f"{OPENAI_BASE}/embeddings",
-                headers={
-                    "Authorization": f"Bearer {settings.openai_api_key}",
-                    "User-Agent": settings.server_user_agent,
-                },
-                json={
-                    "model": settings.embedding_model,
-                    "input": text,
-                    "dimensions": settings.embedding_dimensions,
-                },
-            )
-        if response.status_code != 200:
-            return None
-        data = response.json().get("data") or []
-        return data[0].get("embedding") if data else None
-    except httpx.HTTPError:
-        return None
-
-
-async def _openai_chat(
-    messages: List[dict], *, max_tokens: int = 600, temperature: float = 0.3
-) -> Optional[str]:
-    if not settings.ai_enabled:
-        return None
-    try:
-        async with httpx.AsyncClient(timeout=45.0) as client:
-            response = await client.post(
-                f"{OPENAI_BASE}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {settings.openai_api_key}",
-                    "User-Agent": settings.server_user_agent,
-                },
-                json={
-                    "model": CHAT_MODEL,
-                    "messages": messages,
-                    "temperature": temperature,
-                    "max_tokens": max_tokens,
-                },
-            )
-        if response.status_code != 200:
-            return None
-        choices = response.json().get("choices") or []
-        if not choices:
-            return None
-        return (choices[0].get("message") or {}).get("content")
-    except httpx.HTTPError:
-        return None
 
 
 async def _keyword_device_ids(query: str, limit: int) -> List[str]:
@@ -250,7 +194,7 @@ async def answer_query(query: str, cards: List[dict], chunks: List[dict]) -> Tup
     """Return (answer, used_llm)."""
     if settings.ai_enabled:
         content = _context_block(cards, chunks)
-        reply = await _openai_chat(
+        reply = await chat_completion(
             [
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {
@@ -278,7 +222,7 @@ async def answer_chat_turn(
                 "content": f"{_context_block(cards, chunks)}\n\nUSER QUESTION: {query}",
             }
         )
-        reply = await _openai_chat(messages)
+        reply = await chat_completion(messages)
         if reply:
             return reply.strip(), True
     return template_answer(query, cards, "keyword"), False
