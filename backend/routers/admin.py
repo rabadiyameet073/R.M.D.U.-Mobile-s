@@ -12,11 +12,13 @@ from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, Query, Request, Response, status
 
+from core.ai_client import embed_text
 from core.config import settings
 from core.db import DataAccessError, db
 from core.deps import require_admin, require_admin_write
 from core.errors import APIError
 from core.ratelimit import ADMIN_MUTATION
+from core.security import client_ip_from_request
 from core.utils import (
     as_float,
     clean_search_term,
@@ -54,7 +56,6 @@ from services.catalog_service import (
     shape_device,
 )
 from services.concurrency import call_rpc, interpret_rank
-from services.vector_search import embed_text
 
 router = APIRouter(
     prefix="/admin",
@@ -95,9 +96,8 @@ COUNT_TABLES = [
 
 
 def _ip(request: Request) -> Optional[str]:
-    if request.client and request.client.host:
-        return request.client.host
-    return None
+    """Caller address as audit rows record it (proxy-aware, never a header)."""
+    return client_ip_from_request(request)
 
 
 def _jsonable(values: Dict[str, Any]) -> Dict[str, Any]:
@@ -236,8 +236,11 @@ async def admin_stats() -> dict:
 
 @router.get("/audit-log", response_model=Page[AuditLogOut])
 async def audit_log(
-    action: Optional[str] = Query(default=None, max_length=60),
-    target_type: Optional[str] = Query(default=None, max_length=40),
+    # Constrained to the action vocabulary (`category.update`, `device.feature`).
+    # A free-text value would be interpolated into a PostgREST filter expression,
+    # where `,` `(` and `)` change the query instead of the match.
+    action: Optional[str] = Query(default=None, max_length=60, pattern=r"^[A-Za-z0-9._-]*$"),
+    target_type: Optional[str] = Query(default=None, max_length=40, pattern=r"^[A-Za-z0-9._-]*$"),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=25, ge=1, le=100),
 ) -> dict:
@@ -445,7 +448,9 @@ async def list_devices(
         if is_uuid(brand):
             filters["brands.id"] = f"eq.{brand}"
         else:
-            filters["brands.name"] = f"ilike.*{brand.strip()}*"
+            # Cleaned like every other search term: a brand name is user input
+            # and lands inside an `ilike` expression.
+            filters["brands.name"] = f"ilike.*{clean_search_term(brand)}*"
         inner_brand = True
     if is_active is not None:
         filters["is_active"] = f"is.{str(is_active).lower()}"
@@ -519,9 +524,20 @@ async def get_admin_device(device_id: str) -> dict:
     summary="Create a device with specs, scores and category ranks",
 )
 async def create_device(payload: DeviceCreate, request: Request) -> dict:
+    """Create a device as a draft, fill the related tables, then publish.
+
+    PostgREST gives one transaction per call, so a device plus its specs,
+    scores, pros/cons, features, USSD codes and ranks is seven statements. If
+    the fourth fails, a plain create would leave a *visible* device with half a
+    spec sheet on the storefront. Instead the row is inserted inactive and only
+    flipped active once every related write landed: a partial failure leaves an
+    invisible draft the operator can finish with PATCH, never a broken product
+    page.
+    """
     brand = await _resolve_brand(
         brand_id=payload.brand_id, brand_name=payload.brand_name, create=True
     )
+    publish = bool(payload.is_active)
     values = _jsonable(
         {
             "brand_id": brand["id"],
@@ -535,7 +551,7 @@ async def create_device(payload: DeviceCreate, request: Request) -> dict:
             "gallery_urls": payload.gallery_urls,
             "color_options": payload.color_options,
             "is_featured": payload.is_featured,
-            "is_active": payload.is_active,
+            "is_active": False,
             "extra": payload.extra,
         }
     )
@@ -551,6 +567,44 @@ async def create_device(payload: DeviceCreate, request: Request) -> dict:
         raise
     device_id = rows[0]["id"]
 
+    try:
+        await _fill_device_relations(device_id, payload, request)
+    except (DataAccessError, APIError) as exc:
+        await log_action(
+            "device.create.failed",
+            target_type="device",
+            target_id=device_id,
+            new_value={"reason": str(exc), "stayed_inactive": True},
+            ip_address=_ip(request),
+        )
+        raise APIError(
+            502,
+            "device_partial",
+            "The device was saved as an inactive draft because one of its sections "
+            "failed. Finish it with PATCH /admin/devices/{device_id} instead of "
+            "creating it again.",
+            {"device_id": device_id, "reason": str(exc)},
+        ) from exc
+
+    if publish:
+        await db.update(
+            "devices", {"id": f"eq.{device_id}"}, {"is_active": True}, columns="id"
+        )
+
+    await log_action(
+        "device.create",
+        target_type="device",
+        target_id=device_id,
+        new_value={"name": payload.name, "price": payload.price, "brand": brand["name"]},
+        ip_address=_ip(request),
+    )
+    return await get_device(device_id, detail=True)
+
+
+async def _fill_device_relations(
+    device_id: str, payload: DeviceCreate, request: Request
+) -> None:
+    """Every related row a new device carries, in dependency order."""
     if payload.specs:
         await db.insert(
             "device_specs",
@@ -611,15 +665,6 @@ async def create_device(payload: DeviceCreate, request: Request) -> dict:
     for assignment in payload.categories:
         # Audited by fn_rerank_device inside the ranking transaction.
         await _upsert_category_rank(device_id, assignment, ip_address=_ip(request))
-
-    await log_action(
-        "device.create",
-        target_type="device",
-        target_id=device_id,
-        new_value={"name": payload.name, "price": payload.price, "brand": brand["name"]},
-        ip_address=_ip(request),
-    )
-    return await get_device(device_id, detail=True)
 
 
 @router.patch(
