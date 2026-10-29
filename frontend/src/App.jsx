@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Home from './components/Home';
 import CategoryPage from './components/CategoryPage';
+import AdminApp from './admin/AdminApp';
 
 import budgetkillerVid from '/media/budgetkiller.mp4';
 import gamingguruVid from '/media/gaming guru.mp4';
@@ -80,14 +81,24 @@ function App() {
 
   const pageData = CATEGORY_ROUTES[currentRoute] || CATEGORY_ROUTES[window.location.pathname.toLowerCase()];
 
+  // `/admin` (or `#/admin/...`) mounts the console. It is the only addition to
+  // this file: the storefront branches below are untouched.
+  const isAdminRoute =
+    currentRoute.startsWith('/admin') ||
+    window.location.pathname.toLowerCase().startsWith('/admin');
+
   useEffect(() => {
-    const pageKey = pageData?.pageKey || 'home';
+    const pageKey = isAdminRoute ? 'admin' : pageData?.pageKey || 'home';
     document.body.setAttribute('data-page', pageKey);
 
     return () => {
       document.body.removeAttribute('data-page');
     };
-  }, [pageData]);
+  }, [pageData, isAdminRoute]);
+
+  if (isAdminRoute) {
+    return <AdminApp />;
+  }
 
   if (pageData) {
     return <CategoryPage {...pageData} />;
