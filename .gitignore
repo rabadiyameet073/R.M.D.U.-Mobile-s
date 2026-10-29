@@ -3,3 +3,18 @@ frontend/node_modules/
 *.rar
 *.zip
 *.tar.gz
+
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+frontend/.env
+frontend/.env.local
+client_secret_*.json
+
+# Python backend artifacts (never commit bytecode or virtualenvs)
+__pycache__/
+*.py[cod]
+backend/.venv/
+backend/.pytest_cache/
+
