@@ -14,15 +14,22 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from core.config import settings
 from core.db import db
 from core.errors import register_error_handlers
 from core.middleware import IdempotencyMiddleware, RequestContextMiddleware
+from core.security import (
+    BodySizeLimitMiddleware,
+    OriginGuardMiddleware,
+    SecurityHeadersMiddleware,
+)
 from core.utils import as_float
 from routers import (
     admin,
     admin_content,
+    admin_site,
     ai,
     brands,
     categories,
@@ -31,6 +38,7 @@ from routers import (
     me,
     recommendations,
     retail,
+    site,
 )
 from schemas.common import HealthOut, MetaOut
 from services.catalog_service import categories_with_counts
@@ -45,6 +53,10 @@ OPENAPI_TAGS = [
     {
         "name": "devices",
         "description": "Catalog search and filters, typeahead, full detail, reviews and USSD codes.",
+    },
+    {
+        "name": "site",
+        "description": "Public storefront composition: home tiles, category pages, featured devices and site copy.",
     },
     {
         "name": "categories",
@@ -109,23 +121,49 @@ app = FastAPI(
         "category ranks and scores are database-driven and admin-editable."
     ),
     version=APP_VERSION,
-    docs_url="/docs",
-    redoc_url="/redoc",
+    # The interactive docs are a convenience for developers, not a public
+    # surface: they are served outside production unless ENABLE_DOCS=true.
+    docs_url="/docs" if settings.docs_enabled else None,
+    redoc_url="/redoc" if settings.docs_enabled else None,
     openapi_url=f"{settings.api_prefix}/openapi.json",
     openapi_tags=OPENAPI_TAGS,
     lifespan=lifespan,
 )
 
+# Order matters: each `add_middleware` call wraps everything registered before
+# it, so the last one added is the outermost layer. Requests therefore pass
+# through, outermost first: CORS -> host allowlist -> headers -> origin guard ->
+# body cap -> request context -> idempotency -> application.
 app.add_middleware(RequestContextMiddleware)
 app.add_middleware(IdempotencyMiddleware)
+app.add_middleware(BodySizeLimitMiddleware)
+app.add_middleware(OriginGuardMiddleware)
+if settings.security_headers:
+    app.add_middleware(SecurityHeadersMiddleware)
+if settings.allowed_hosts_list != ["*"]:
+    # A forged Host header can poison absolute URLs built by the app and, on
+    # some proxies, the routing of the request itself.
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=settings.allowed_hosts_list,
+        www_redirect=False,
+    )
 # CORS is added last so it stays outermost: preflight answers never depend on
 # the layers below, and the response headers they add survive the wrapper.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=[
+        "Authorization",
+        "Content-Type",
+        "Accept",
+        "Idempotency-Key",
+        "If-Match",
+        "X-Admin-Key",
+        "X-Request-ID",
+    ],
     expose_headers=["X-Request-ID", "X-Response-Time-Ms", "Retry-After", "Idempotent-Replayed"],
 )
 register_error_handlers(app)
@@ -139,7 +177,9 @@ async def health_check() -> dict:
         await db.select("categories", columns="id", limit=1)
     except Exception as exc:  # noqa: BLE001 - health must never raise
         database = "down"
-        detail = str(exc)
+        # The exception text can contain the data-plane URL; only surface it
+        # where the caller is the operator.
+        detail = None if settings.is_production else str(exc)
     latency_ms = round((time.perf_counter() - started) * 1000, 2)
     return {
         "status": "ok" if database == "ok" else "degraded",
@@ -158,9 +198,12 @@ def feature_flags() -> dict:
         "reviews": settings.feature_reviews,
         "shopkeeper_cards": settings.feature_shopkeeper_cards,
         "price_alerts": settings.feature_price_alerts,
-        "admin_writes": settings.feature_admin_writes,
+        "admin_writes": settings.feature_admin_writes and not settings.db_read_only,
         "rate_limit": settings.rate_limit_enabled,
         "idempotency_required": bool(settings.idempotency_required.strip()),
+        # Read-only mode: the SPA can disable save buttons instead of letting
+        # each one fail with a 503.
+        "db_read_only": settings.db_read_only,
     }
 
 
@@ -224,7 +267,7 @@ async def readiness_check() -> JSONResponse:
         await db.select("categories", columns="id", limit=1)
     except Exception as exc:  # noqa: BLE001 - readiness must never raise
         database = "down"
-        detail = str(exc)[:300]
+        detail = None if settings.is_production else str(exc)[:300]
     payload = {
         "status": "ready" if database == "ok" else "not_ready",
         "version": APP_VERSION,
@@ -253,6 +296,7 @@ app.add_api_route("/health/ready", readiness_check, methods=["GET"], tags=["syst
 app.add_api_route(f"{settings.api_prefix}/health/ready", readiness_check, methods=["GET"], tags=["system"])
 
 for module in (
+    site,
     brands,
     devices,
     categories,
@@ -263,16 +307,19 @@ for module in (
     me,
     admin,
     admin_content,
+    admin_site,
 ):
     app.include_router(module.router, prefix=settings.api_prefix)
 
 
 @app.get("/", tags=["system"], include_in_schema=False)
 async def root() -> dict:
-    return {
+    payload = {
         "service": "RMDU Mobiles API",
         "version": APP_VERSION,
-        "docs": "/docs",
         "health": "/health",
         "api": settings.api_prefix,
     }
+    if settings.docs_enabled:
+        payload["docs"] = "/docs"
+    return payload

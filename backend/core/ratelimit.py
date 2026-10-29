@@ -26,6 +26,7 @@ from fastapi import Request
 
 from core.config import settings
 from core.errors import APIError
+from core.security import client_ip_from_request
 
 
 def request_identity(request: Request, *, scope: str = "credential") -> str:
@@ -35,7 +36,7 @@ def request_identity(request: Request, *, scope: str = "credential") -> str:
         if credential:
             digest = hashlib.sha256(credential.encode("utf-8")).hexdigest()[:32]
             return f"cred:{digest}"
-    host = request.client.host if request.client else "unknown"
+    host = client_ip_from_request(request) or "unknown"
     return f"ip:{host}"
 
 
@@ -81,6 +82,26 @@ class WindowLimiter:
     def reset(self) -> None:
         self._windows.clear()
 
+    async def blocked_for(self, key: str, limit: int) -> int:
+        """Seconds to wait when `key` has already spent `limit`, else 0.
+
+        Unlike `hit()` this never increments, so a gate can be re-checked as
+        often as a request arrives without shortening the window.
+        """
+        now = time.monotonic()
+        async with self._lock:
+            current = self._windows.get(key)
+            if current is None or current.reset_at <= now:
+                return 0
+            if current.count >= limit:
+                return max(1, math.ceil(current.reset_at - now))
+            return 0
+
+    async def clear(self, key: str) -> None:
+        """Forget one counter (a successful proof of identity resets it)."""
+        async with self._lock:
+            self._windows.pop(key, None)
+
 
 limiter = WindowLimiter()
 
@@ -121,6 +142,20 @@ AI_QUERY = rate_limit("ai_query", limit=10, window_seconds=60.0)
 ADMIN_MUTATION = rate_limit("admin_mutation", limit=60, window_seconds=60.0)
 CLAIM = rate_limit("claim", limit=5, window_seconds=60.0)
 
+# Signed-in writes: history, alerts, profile edits, card deletion. 60/min is far
+# above anything a person does by hand and still caps a script that would
+# otherwise grow one user's rows without bound.
+USER_MUTATION = rate_limit("user_mutation", limit=60, window_seconds=60.0)
+
+# Scoring engines walk the whole candidate set on every call, so anonymous
+# callers get a tighter budget than the plain catalog reads they sit next to.
+RECOMMEND_QUERY = rate_limit("recommend_query", limit=20, window_seconds=60.0)
+COMPARE_QUERY = rate_limit("compare_query", limit=30, window_seconds=60.0)
+
+# Chat sessions are guest-writable, and each one inserts rows that later turns
+# append to. One chat per six minutes per caller is plenty.
+CHAT_SESSION = rate_limit("chat_session", limit=10, window_seconds=3600.0)
+
 
 def retry_after_header(seconds: int) -> dict:
     return {"Retry-After": str(max(int(seconds), 1))}
@@ -131,6 +166,4 @@ def identity_summary(request: Request) -> Optional[str]:
     credential = request.headers.get("authorization") or request.headers.get("x-admin-key")
     if credential:
         return request_identity(request)
-    if request.client:
-        return request.client.host
-    return None
+    return client_ip_from_request(request)

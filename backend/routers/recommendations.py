@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, Query
 
 from core.deps import CurrentUser, get_current_user, get_optional_user
 from core.errors import APIError
+from core.ratelimit import RECOMMEND_QUERY
 from core.utils import as_float
 from schemas.recommendation import (
     CachedRecommendationOut,
@@ -67,7 +68,12 @@ async def quick_recommendations(
     return await recommend(request)
 
 
-@router.post("", response_model=RecommendationResponse, summary="Generate recommendations")
+@router.post(
+    "",
+    response_model=RecommendationResponse,
+    dependencies=[Depends(RECOMMEND_QUERY)],
+    summary="Generate recommendations",
+)
 async def create_recommendations(
     payload: RecommendationRequest,
     user: Optional[CurrentUser] = Depends(get_optional_user),
@@ -90,6 +96,7 @@ async def create_recommendations(
 @router.post(
     "/personal",
     response_model=RecommendationResponse,
+    dependencies=[Depends(RECOMMEND_QUERY)],
     summary="Generate from the signed-in user's saved profile",
 )
 async def personal_recommendations(

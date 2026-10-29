@@ -28,6 +28,7 @@ from typing import Any, Dict, Optional, Tuple
 from core.config import settings
 from core.db import DataAccessError, db
 from core.errors import error_payload
+from core.security import SAFE_REQUEST_ID, client_ip
 
 logger = logging.getLogger("rmdu.http")
 
@@ -72,9 +73,18 @@ class RequestContextMiddleware:
             return
 
         started = time.perf_counter()
-        request_id = _header(scope, b"x-request-id") or uuid.uuid4().hex[:16]
+        # A caller-supplied id is echoed back and written to the access log, so
+        # anything outside a short log-safe alphabet is discarded.
+        provided_id = _header(scope, b"x-request-id")
+        request_id = (
+            provided_id
+            if provided_id and SAFE_REQUEST_ID.match(provided_id)
+            else uuid.uuid4().hex[:16]
+        )
+        caller_ip = client_ip(scope) or "unknown"
         state = scope.setdefault("state", {})
         state["request_id"] = request_id
+        state["client_ip"] = caller_ip
 
         path = scope.get("path", "")
         policy = cache_policy(path)
@@ -98,11 +108,12 @@ class RequestContextMiddleware:
             await self.app(scope, receive, send_wrapper)
         finally:
             logger.info(
-                "%s %s -> %s %.1fms rid=%s",
+                "%s %s -> %s %.1fms ip=%s rid=%s",
                 scope.get("method"),
                 path,
                 outcome["status"],
                 outcome["elapsed_ms"],
+                caller_ip,
                 request_id,
             )
 
@@ -128,7 +139,7 @@ class IdempotencyMiddleware:
             prefix = "user" if credential.lower().startswith("bearer ") else "admin"
             digest = hashlib.sha256(credential.encode("utf-8")).hexdigest()[:32]
             return f"{prefix}:{digest}"
-        host = (scope.get("client") or ("unknown", 0))[0]
+        host = client_ip(scope) or "unknown"
         agent = _header(scope, b"user-agent") or ""
         digest = hashlib.sha256(f"{host}|{agent}".encode("utf-8")).hexdigest()[:32]
         return f"guest:{digest}"

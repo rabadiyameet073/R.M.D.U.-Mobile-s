@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, Query
 from core.db import db
 from core.deps import CurrentUser, get_current_user, get_optional_user
 from core.errors import APIError
+from core.ratelimit import COMPARE_QUERY
 from core.utils import is_uuid, offset_for, pagination_meta
 from schemas.common import Page
 from schemas.compare import (
@@ -25,7 +26,12 @@ router = APIRouter(prefix="/compare", tags=["compare"])
 Priority = Literal["gaming", "camera", "battery", "value", "all-rounder"]
 
 
-@router.post("", response_model=ComparisonResponse, summary="Compare 2-4 devices")
+@router.post(
+    "",
+    response_model=ComparisonResponse,
+    dependencies=[Depends(COMPARE_QUERY)],
+    summary="Compare 2-4 devices",
+)
 async def compare(
     payload: CompareRequest,
     user: Optional[CurrentUser] = Depends(get_optional_user),

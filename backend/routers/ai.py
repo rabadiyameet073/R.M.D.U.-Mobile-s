@@ -11,7 +11,7 @@ from core.config import settings
 from core.db import db
 from core.deps import CurrentUser, get_current_user, get_optional_user, require_feature
 from core.errors import APIError
-from core.ratelimit import AI_QUERY
+from core.ratelimit import AI_QUERY, CHAT_SESSION
 from core.utils import offset_for, pagination_meta
 from schemas.ai import (
     AIQueryRequest,
@@ -116,7 +116,7 @@ async def ai_query(payload: AIQueryRequest) -> dict:
     "/chat/sessions",
     response_model=ChatSessionOut,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(require_feature("feature_ai"))],
+    dependencies=[Depends(CHAT_SESSION), Depends(require_feature("feature_ai"))],
     summary="Start a chat session",
 )
 async def create_chat_session(
@@ -198,7 +198,11 @@ async def list_chat_messages(
     return result.rows
 
 
-@router.delete("/chat/sessions/{token}", response_model=ChatSessionOut)
+@router.delete(
+    "/chat/sessions/{token}",
+    response_model=ChatSessionOut,
+    dependencies=[Depends(CHAT_SESSION)],
+)
 async def close_chat_session(
     token: str, user: Optional[CurrentUser] = Depends(get_optional_user)
 ) -> dict:

@@ -25,6 +25,33 @@ class DataAccessError(Exception):
         self.payload = payload or {}
 
 
+#: SQLSTATE codes that mean the database refuses writes rather than the request
+#: being wrong: `25006` read-only transaction, `42501` revoked grant / RLS denial.
+WRITE_REJECTED_CODES = {"25006", "42501"}
+
+_WRITE_REJECTED_MARKERS = (
+    "read-only transaction",
+    "read only transaction",
+    "permission denied for table",
+    "insufficient privilege",
+)
+
+
+def is_write_rejected(exc: DataAccessError) -> bool:
+    """True when the data plane refused a write because it is locked.
+
+    A read-only or permission-locked database answers every INSERT/UPDATE/
+    DELETE with one of these. The caller did nothing wrong and the write never
+    landed, so the API must say "nothing was saved" instead of reporting a bad
+    request the client could never fix.
+    """
+    code = str((exc.payload or {}).get("code") or "")
+    if code in WRITE_REJECTED_CODES:
+        return True
+    message = (exc.message or "").lower()
+    return any(marker in message for marker in _WRITE_REJECTED_MARKERS)
+
+
 class QueryResult:
     def __init__(self, rows: List[dict], total: Optional[int] = None):
         self.rows = rows
@@ -92,6 +119,16 @@ class SupabaseGateway:
         prefer: Optional[str] = None,
         count: bool = False,
     ) -> httpx.Response:
+        if settings.db_read_only and method != "GET":
+            # Deliberate lock. Refusing here means no statement is prepared and
+            # no transaction opens, so nothing can land even if a route forgets
+            # a guard. The payload carries the read-only SQLSTATE so the error
+            # handler reports it as `database_locked`, not as a bad request.
+            raise DataAccessError(
+                403,
+                f"database is read-only (DB_READ_ONLY=true): {method} {path} refused",
+                {"code": "25006"},
+            )
         headers: Dict[str, str] = {}
         if prefer:
             headers["Prefer"] = prefer
