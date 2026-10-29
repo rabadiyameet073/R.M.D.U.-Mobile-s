@@ -10,11 +10,11 @@ import bgv3 from '/media/bgv3.mp4';
 import bgv4 from '/media/bgv4.mp4';
 import bgv2 from '/media/bgv2.mp4';
 import offerVid from '/media/offer.mp4';
-import budgetkillerVid from '/media/budgetkiller.mp4';
-import gamingguruVid from '/media/gaming guru.mp4';
-import cameraVid from '/media/camera.mp4';
-import battryVid from '/media/battry.mp4';
-import goatVid from '/media/goat.mp4';
+
+import FeaturedPhones from './sections/FeaturedPhones';
+import LiveCategories from './sections/LiveCategories';
+import { categoryHref } from '../lib/api';
+import { useApi } from '../lib/useApi';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -40,6 +40,16 @@ export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  /* The home page renders only what `/site/home` returns: category tiles, their
+   * members, featured devices and the hero/footer copy. Adding a row in SQL or
+   * in the console therefore changes this page with no rebuild. */
+  const { data: home, loading: homeLoading, error: homeError, refetch: reloadHome } = useApi('/site/home');
+  const siteSettings = home?.settings || {};
+  const heroCopy = siteSettings.hero || {};
+  const categories = home?.categories || [];
+  const featured = home?.featured || [];
+  const stats = home?.stats || {};
 
   useEffect(() => {
     /* ══════════════════════════════════════════════════════════
@@ -493,12 +503,15 @@ export default function Home() {
       }, '-=0.1');
   }, [isSearchActive]);
 
+  /* Navigation is derived from the live categories, so publishing one adds a
+   * menu entry in the same visit. */
   const menuLinks = [
-    { label: 'Budget Killer', href: '#/budget-killer', tag: 'Value' },
-    { label: 'Gaming Guru', href: '#/gaming-guru', tag: 'Performance' },
-    { label: 'Camera Champ', href: '#/camera-champ', tag: 'Imaging' },
-    { label: 'Battery Boss', href: '#/battery-boss', tag: 'Endurance' },
-    { label: 'G.O.A.T', href: '#/goat', tag: 'Flagship' },
+    ...categories.slice(0, 6).map((category) => ({
+      label: category.name,
+      href: categoryHref(category),
+      tag: category.device_count ? `${category.device_count} devices` : 'Guide',
+    })),
+    { label: 'Search Phones', href: '#/search/', tag: 'Find' },
     { label: 'Contact Us', href: '#footer', tag: 'Support' },
   ];
 
@@ -673,11 +686,11 @@ export default function Home() {
           <div className="section-overlay hero-gradient"></div>
 
           <div className="hero-content">
-            <p className="hero-subtitle">Don't Just Upgrade Your Phone</p>
-            <h1 className="hero-title">Upgrade Your<br />Statement</h1>
-            <p className="hero-description">Honest guidance. Full transparency. Zero bias.</p>
-            <a href="#problem" className="btn-cta magnetic-btn">
-              Discover More <span className="arrow">→</span>
+            <p className="hero-subtitle">{heroCopy.eyebrow || "Don't Just Upgrade Your Phone"}</p>
+            <h1 className="hero-title hero-title--live">{heroCopy.title || 'Upgrade Your Statement'}</h1>
+            <p className="hero-description">{heroCopy.subtitle || 'Honest guidance. Full transparency. Zero bias.'}</p>
+            <a href={heroCopy.primary_cta?.href || '#problem'} className="btn-cta magnetic-btn">
+              {heroCopy.primary_cta?.label || 'Discover More'} <span className="arrow">→</span>
             </a>
           </div>
 
@@ -725,98 +738,29 @@ export default function Home() {
             <h2 className="section-title reveal reveal-delay-1">Explore The Range</h2>
             <div className="title-underline center reveal reveal-delay-1"></div>
 
-            <div className="card-grid mt-md">
-              {/* Budget Killer */}
-              <div className="tilt-card reveal reveal-delay-2">
-                <div className="card-inner">
-                  <div className="card-video-bg">
-                    <video autoPlay loop muted playsInline>
-                      <source src={budgetkillerVid} type="video/mp4" />
-                    </video>
-                  </div>
-                  <div className="card-overlay"></div>
-                  <div className="card-content">
-                    <div className="card-icon">💸</div>
-                    <h3 className="card-title">Budget Killer</h3>
-                    <p className="card-desc">Maximum value under ₹15K.</p>
-                    <a href="#/budget-killer" className="card-cta">Explore →</a>
-                  </div>
-                  <div className="card-glow"></div>
-                </div>
-              </div>
-              {/* Gaming Guru */}
-              <div className="tilt-card reveal reveal-delay-3">
-                <div className="card-inner">
-                  <div className="card-video-bg">
-                    <video autoPlay loop muted playsInline>
-                      <source src={gamingguruVid} type="video/mp4" />
-                    </video>
-                  </div>
-                  <div className="card-overlay"></div>
-                  <div className="card-content">
-                    <div className="card-icon">🎮</div>
-                    <h3 className="card-title">Gaming Guru</h3>
-                    <p className="card-desc">Unthrottled frame rates. Elite cooling.</p>
-                    <a href="#/gaming-guru" className="card-cta">Explore →</a>
-                  </div>
-                  <div className="card-glow"></div>
-                </div>
-              </div>
-              {/* Camera Champ */}
-              <div className="tilt-card reveal reveal-delay-4">
-                <div className="card-inner">
-                  <div className="card-video-bg">
-                    <video autoPlay loop muted playsInline>
-                      <source src={cameraVid} type="video/mp4" />
-                    </video>
-                  </div>
-                  <div className="card-overlay"></div>
-                  <div className="card-content">
-                    <div className="card-icon">📸</div>
-                    <h3 className="card-title">Camera Champ</h3>
-                    <p className="card-desc">Studio-grade optics in your pocket.</p>
-                    <a href="#/camera-champ" className="card-cta">Explore →</a>
-                  </div>
-                  <div className="card-glow"></div>
-                </div>
-              </div>
-              {/* Battery Boss */}
-              <div className="tilt-card reveal reveal-delay-2">
-                <div className="card-inner">
-                  <div className="card-video-bg">
-                    <video autoPlay loop muted playsInline>
-                      <source src={battryVid} type="video/mp4" />
-                    </video>
-                  </div>
-                  <div className="card-overlay"></div>
-                  <div className="card-content">
-                    <div className="card-icon">🔋</div>
-                    <h3 className="card-title">Battery Boss</h3>
-                    <p className="card-desc">All-day power. Zero compromise.</p>
-                    <a href="#/battery-boss" className="card-cta">Explore →</a>
-                  </div>
-                  <div className="card-glow"></div>
-                </div>
-              </div>
-              {/* G.O.A.T */}
-              <div className="tilt-card reveal reveal-delay-3">
-                <div className="card-inner">
-                  <div className="card-video-bg">
-                    <video autoPlay loop muted playsInline>
-                      <source src={goatVid} type="video/mp4" />
-                    </video>
-                  </div>
-                  <div className="card-overlay"></div>
-                  <div className="card-content">
-                    <div className="card-icon">👑</div>
-                    <h3 className="card-title">G.O.A.T</h3>
-                    <p className="card-desc">The absolute best. No limits.</p>
-                    <a href="#/goat" className="card-cta">Explore →</a>
-                  </div>
-                  <div className="card-glow"></div>
-                </div>
-              </div>
+            <div className="mt-md">
+              <LiveCategories
+                categories={categories}
+                loading={homeLoading}
+                error={homeError}
+                onRetry={reloadHome}
+              />
             </div>
+
+            <FeaturedPhones
+              devices={featured}
+              loading={homeLoading}
+              error={homeError}
+              onRetry={reloadHome}
+              eyebrow="Live from the catalog"
+              title="Trending picks"
+              subtitle={
+                stats.devices
+                  ? `${stats.devices} devices across ${stats.categories} categories — ranked by how they actually perform.`
+                  : undefined
+              }
+              action={{ label: 'Search the catalog', href: '#/search/' }}
+            />
           </div>
         </section>
 
@@ -917,11 +861,12 @@ export default function Home() {
 
         {/* Link rows */}
         <div className="footer-link-rows">
-          <a href="#/budget-killer">Budget Killer</a>
-          <a href="#/gaming-guru">Gaming Guru</a>
-          <a href="#/camera-champ">Camera Champ</a>
-          <a href="#/battery-boss">Battery Boss</a>
-          <a href="#/goat">G.O.A.T</a>
+          {categories.map((category) => (
+            <a key={category.id} href={categoryHref(category)}>
+              {category.name}
+            </a>
+          ))}
+          <a href="#/search/">Search</a>
           <a href="#trust">About Us</a>
           <a href="mailto:contact@rmdumobile.com">Contact</a>
           <a href="#footer">Business Enquiries</a>

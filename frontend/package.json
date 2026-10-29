@@ -4,12 +4,13 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5100",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview --port 5100"
   },
   "dependencies": {
     "@studio-freight/lenis": "^1.0.42",
+    "@supabase/supabase-js": "^2.118.0",
     "gsap": "^3.12.5",
     "lucide-react": "^0.364.0",
     "react": "^18.2.0",

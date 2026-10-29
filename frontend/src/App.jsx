@@ -1,72 +1,50 @@
 import React, { useEffect, useState } from 'react';
-import Home from './components/Home';
-import CategoryPage from './components/CategoryPage';
+
 import AdminApp from './admin/AdminApp';
+import CategoryPage from './components/CategoryPage';
+import DevicePage from './components/DevicePage';
+import Home from './components/Home';
+import SearchPage from './components/SearchPage';
 
-import budgetkillerVid from '/media/budgetkiller.mp4';
-import gamingguruVid from '/media/gaming guru.mp4';
-import cameraVid from '/media/camera.mp4';
-import battryVid from '/media/battry.mp4';
-import goatVid from '/media/goat.mp4';
+/**
+ * Hash router.
+ *
+ * There is no route table for content: anything that is not `/admin`, `/device`
+ * or `/search` is treated as a category slug and resolved against the database.
+ * That is what lets a category created in the console — or inserted in SQL —
+ * have a working page immediately, with no code change.
+ */
+function parseRoute() {
+  const hash = window.location.hash.startsWith('#/') ? window.location.hash.slice(1) : '';
+  const raw = hash || window.location.pathname || '/';
+  const segments = raw
+    .split('?')[0]
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => {
+      try {
+        return decodeURIComponent(segment);
+      } catch {
+        return segment;
+      }
+    });
 
-const CATEGORY_ROUTES = {
-  '/budget-killer': {
-    pageKey: 'budget-killer',
-    title: 'Budget Killer',
-    subtitle: 'Best value picks under tight budgets with balanced real-world performance.',
-    description: 'Budget Killer focuses on phones that deliver strong day-to-day speed, dependable battery life, and reliable software support without inflating price.',
-    videoSrc: budgetkillerVid,
-    highlights: ['Performance per rupee', 'Display quality in budget tier', 'Thermals under sustained load', 'Software and update policy'],
-  },
-  '/gaming-guru': {
-    pageKey: 'gaming-guru',
-    title: 'Gaming Guru',
-    subtitle: 'High FPS consistency, thermal control, and low-latency touch for competitive play.',
-    description: 'Gaming Guru highlights devices that keep frame rates stable over long sessions, avoid thermal throttling, and provide responsive controls.',
-    videoSrc: gamingguruVid,
-    highlights: ['Sustained FPS stability', 'Vapor chamber and cooling efficiency', 'Touch sampling and response rate', 'Battery drain during extended gaming'],
-  },
-  '/camera-champ': {
-    pageKey: 'camera-champ',
-    title: 'Camera Champ',
-    subtitle: 'Balanced photography systems with true-to-life color, dynamic range, and detail.',
-    description: 'Camera Champ recommends phones that perform consistently across daylight, night mode, portraits, and video stabilization.',
-    videoSrc: cameraVid,
-    highlights: ['Main sensor consistency', 'Low-light and night capture', 'Portrait edge detection', 'Video stabilization and audio'],
-  },
-  '/battery-boss': {
-    pageKey: 'battery-boss',
-    title: 'Battery Boss',
-    subtitle: 'Endurance-focused devices made for heavy users and all-day confidence.',
-    description: 'Battery Boss ranks phones by real screen-on endurance, efficiency tuning, and fast charging behavior under practical usage patterns.',
-    videoSrc: battryVid,
-    highlights: ['Screen-on time under mixed use', 'Standby drain efficiency', 'Charging speed consistency', 'Battery health management'],
-  },
-  '/goat': {
-    pageKey: 'goat',
-    title: 'G.O.A.T',
-    subtitle: 'Flagship-grade excellence with no compromise across performance, camera, and build.',
-    description: 'G.O.A.T showcases top-tier smartphones that lead in raw capability, refinement, and premium overall user experience.',
-    videoSrc: goatVid,
-    highlights: ['Flagship chip and sustained speed', 'Best-in-class imaging', 'Display and haptics quality', 'Long-term software support'],
-  },
-};
+  const [first, ...rest] = segments;
+
+  if (!first) return { kind: 'home', pageKey: 'home' };
+  if (first.toLowerCase() === 'admin') return { kind: 'admin', pageKey: 'admin' };
+  if (first.toLowerCase() === 'search') return { kind: 'search', pageKey: 'search', query: rest.join('/') };
+  if (first.toLowerCase() === 'device') return { kind: 'device', pageKey: 'device', identifier: rest[0] || '' };
+
+  return { kind: 'category', pageKey: first, slug: first };
+}
 
 function App() {
-  const getCurrentRoute = () => {
-    const pathname = window.location.pathname.toLowerCase();
-    const hashRoute = window.location.hash.startsWith('#/')
-      ? window.location.hash.slice(1).toLowerCase()
-      : '/';
-
-    return hashRoute || pathname;
-  };
-
-  const [currentRoute, setCurrentRoute] = useState(getCurrentRoute);
+  const [route, setRoute] = useState(parseRoute);
 
   useEffect(() => {
     const handleRouteChange = () => {
-      setCurrentRoute(getCurrentRoute());
+      setRoute(parseRoute());
       window.scrollTo({ top: 0, behavior: 'auto' });
     };
 
@@ -79,29 +57,29 @@ function App() {
     };
   }, []);
 
-  const pageData = CATEGORY_ROUTES[currentRoute] || CATEGORY_ROUTES[window.location.pathname.toLowerCase()];
-
-  // `/admin` (or `#/admin/...`) mounts the console. It is the only addition to
-  // this file: the storefront branches below are untouched.
-  const isAdminRoute =
-    currentRoute.startsWith('/admin') ||
-    window.location.pathname.toLowerCase().startsWith('/admin');
-
   useEffect(() => {
-    const pageKey = isAdminRoute ? 'admin' : pageData?.pageKey || 'home';
-    document.body.setAttribute('data-page', pageKey);
-
+    document.body.setAttribute('data-page', route.pageKey || 'home');
     return () => {
       document.body.removeAttribute('data-page');
     };
-  }, [pageData, isAdminRoute]);
+  }, [route.pageKey]);
 
-  if (isAdminRoute) {
+  if (route.kind === 'admin') {
     return <AdminApp />;
   }
 
-  if (pageData) {
-    return <CategoryPage {...pageData} />;
+  if (route.kind === 'search') {
+    return <SearchPage initialQuery={route.query} />;
+  }
+
+  if (route.kind === 'device') {
+    /* An empty identifier still renders the page: it shows the "not found"
+     * state instead of silently falling back to the home page. */
+    return <DevicePage identifier={route.identifier} />;
+  }
+
+  if (route.kind === 'category') {
+    return <CategoryPage slug={route.slug} />;
   }
 
   return <Home />;

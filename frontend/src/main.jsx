@@ -8,6 +8,7 @@ import './styles/pages/gaming-guru.css';
 import './styles/pages/camera-champ.css';
 import './styles/pages/battery-boss.css';
 import './styles/pages/goat.css';
+import './styles/pages/dynamic.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
